@@ -1,8 +1,7 @@
-import json, os, ssl, time, urllib.error, urllib.parse, urllib.request, http.client
+import json, os, time, urllib.error, urllib.parse, urllib.request, http.client
 from pathlib import Path
 
 API = "https://api.github.com"
-UPLOAD = "https://uploads.github.com"
 API_VERSION = "2026-03-10"
 MAX_ASSET = 2 * 1024 * 1024 * 1024
 
@@ -35,6 +34,10 @@ def upload_archive(path: Path, log, status):
         raise ValueError("MIGRATEKIT_GITHUB_REPO must be owner/repository.")
 
     owner, name = repo.split("/", 1)
+    metadata = _json_request(f"{API}/repos/{owner}/{name}", token)
+    if not metadata.get("private", False):
+        raise ValueError("MigrateKit will only upload backup archives to a private GitHub repository.")
+
     tag = "migratekit-backups"
     status("Uploading backup to GitHub…")
     log(f"GitHub target: {repo} · asset: {path.name}")
@@ -60,7 +63,6 @@ def upload_archive(path: Path, log, status):
     assets_url = release["upload_url"].split("{", 1)[0]
     asset_name = f"{int(time.time())}_{path.name}"
     url = assets_url + "?" + urllib.parse.urlencode({"name": asset_name})
-
     size = path.stat().st_size
     parsed = urllib.parse.urlparse(url)
     conn = http.client.HTTPSConnection(parsed.netloc, timeout=120)
@@ -81,7 +83,7 @@ def upload_archive(path: Path, log, status):
                 status(f"Uploading to GitHub… {sent / size:.0%}")
         response = conn.getresponse()
         payload = response.read().decode("utf-8", errors="replace")
-        if response.status not in (201,):
+        if response.status != 201:
             raise RuntimeError(f"GitHub upload failed ({response.status}): {payload[:500]}")
         result = json.loads(payload)
     finally:
