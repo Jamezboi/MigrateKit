@@ -28,34 +28,37 @@ jobs:
           pip install -r app/requirements.txt
           pip install pyinstaller
 
-      - name: Build MigrateKit 1.1.0
+      - name: Build MigrateKit 1.2.0 onedir
         working-directory: app
         shell: cmd
         run: build.bat
 
-      - name: Verify artifact
+      - name: Verify onedir runtime
         shell: powershell
         run: |
-          $exe = 'app/dist/MigrateKit.exe'
-          if (-not (Test-Path $exe)) { throw "Build did not produce $exe" }
+          $exe = 'app/dist/MigrateKit/MigrateKit.exe'
+          $zip = 'app/MigrateKit-1.2.0-Windows.zip'
+          if (-not (Test-Path $exe)) { throw "Missing launcher: $exe" }
+          if (-not (Test-Path $zip)) { throw "Missing package: $zip" }
+          $files = (Get-ChildItem 'app/dist/MigrateKit' -Recurse -File).Count
+          if ($files -lt 10) { throw "Onedir runtime unexpectedly contains only $files files" }
           $hash = Get-FileHash $exe -Algorithm SHA256
-          Write-Host "SHA256: $($hash.Hash)"
-          $item = Get-Item $exe
-          Write-Host "Size: $($item.Length) bytes"
-          Write-Host "Path: $($item.FullName)"
+          Write-Host "Launcher SHA256: $($hash.Hash)"
+          Write-Host "Runtime files: $files"
+          Write-Host "Package size: $((Get-Item $zip).Length) bytes"
 
-      - name: Upload CI artifact
+      - name: Upload portable package
         uses: actions/upload-artifact@v4
         with:
-          name: MigrateKit-Windows-1.1.0
-          path: app/dist/MigrateKit.exe
+          name: MigrateKit-Windows-1.2.0
+          path: app/MigrateKit-1.2.0-Windows.zip
           if-no-files-found: error
 
-      - name: Publish v1.1.0 release
+      - name: Publish v1.2.0 release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.0
-          name: MigrateKit v1.1.0
+          tag_name: v1.2.0
+          name: MigrateKit v1.2.0
           generate_release_notes: true
           prerelease: false
-          files: app/dist/MigrateKit.exe
+          files: app/MigrateKit-1.2.0-Windows.zip
