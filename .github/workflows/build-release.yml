@@ -38,8 +38,11 @@ jobs:
         run: |
           $exe = 'app/dist/MigrateKit.exe'
           if (-not (Test-Path $exe)) { throw "Build did not produce $exe" }
-          Get-FileHash $exe -Algorithm SHA256 | Format-List
-          Get-Item $exe | Select-Object FullName,Length,LastWriteTime
+          $hash = Get-FileHash $exe -Algorithm SHA256
+          Write-Host "SHA256: $($hash.Hash)"
+          $item = Get-Item $exe
+          Write-Host "Size: $($item.Length) bytes"
+          Write-Host "Path: $($item.FullName)"
 
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
@@ -48,11 +51,11 @@ jobs:
           path: app/dist/MigrateKit.exe
           if-no-files-found: error
 
-      - name: Publish v1.0.0 release
+      - name: Publish v1.0.1 release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: MigrateKit v1.0.0
+          tag_name: v1.0.1
+          name: MigrateKit v1.0.1
           generate_release_notes: true
           prerelease: false
           files: app/dist/MigrateKit.exe
