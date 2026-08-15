@@ -1,444 +1,171 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MigrateKit | Next-Gen Windows 11 Migration Utility</title>
-  
-  <!-- Google Fonts - Plus Jakarta Sans & Sora -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-  
-  <!-- CSS Stylesheet -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="MigrateKit is a Windows 11 migration utility for packaging and restoring personal files, Chrome data, app settings and selected registry configuration.">
+  <meta name="theme-color" content="#0b1020">
+  <title>MigrateKit — Windows 11 migration, without the mess</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <!-- WebGL Background Canvas -->
-  <canvas id="bg-canvas"></canvas>
-
-  <!-- Navigation Bar -->
-  <header class="navbar">
-    <div class="nav-container">
-      <a href="#" class="nav-logo">
-        <div class="logo-box">
-          <span class="logo-cube"></span>
-        </div>
-        <span class="logo-text">MigrateKit</span>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#top" aria-label="MigrateKit home">
+        <span class="brand-mark"><span></span><span></span><span></span></span>
+        <span>MigrateKit</span>
       </a>
-      <nav class="nav-links">
+      <nav class="nav-links" id="nav-links" aria-label="Primary">
         <a href="#features">Features</a>
-        <a href="#demo">Live Demo</a>
-        <a href="#how-it-works">How It Works</a>
+        <a href="#workflow">How it works</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="https://github.com/Jamezboi/MigrateKit/releases/latest" class="btn-nav-download">Download App</a>
+        <a class="nav-download" href="https://github.com/Jamezboi/MigrateKit/releases/latest">Download</a>
       </nav>
-      <button class="menu-toggle" id="menu-toggle" aria-label="Toggle Navigation Menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-grid">
-      <div class="hero-content">
-        <h1 class="hero-title">Flawless Windows 11 Migration.</h1>
-        <p class="hero-description">
-          Package your entire user profile, Chrome browser environment, configurations, and registries into a single secure archive. Restore everything on a fresh OS in one click.
-        </p>
-        <div class="hero-ctas">
-          <a href="https://github.com/Jamezboi/MigrateKit/releases/latest" class="btn btn-primary">Download Free Utility</a>
-          <a href="#pricing" class="btn btn-secondary">Purchase License Key</a>
-        </div>
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-num">100%</span>
-            <span class="stat-label">Local & Private</span>
+  <main id="top">
+    <section class="hero section-pad">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span> Windows 11 migration toolkit</div>
+          <h1>Move your Windows setup.<br><em>Keep your stuff.</em></h1>
+          <p class="hero-lead">Back up the parts of your user profile that matter, move one portable <strong>.migratekit</strong> package, then restore on the new PC.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://github.com/Jamezboi/MigrateKit/releases/latest">Download MigrateKit</a>
+            <a class="btn btn-ghost" href="#workflow">See how it works <span>↓</span></a>
           </div>
-          <div class="stat-item">
-            <span class="stat-num">&lt; 5 Min</span>
-            <span class="stat-label">Average Sync Time</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num">0</span>
-            <span class="stat-label">Data Loss Guarantee</span>
+          <div class="hero-trust">
+            <span>✓ Local processing</span>
+            <span>✓ Windows 11 ready</span>
+            <span>✓ Portable archive</span>
           </div>
         </div>
-      </div>
-      
-      <!-- Interactive App UI Mockup in Hero -->
-      <div class="hero-visual">
-        <div class="app-mockup">
-          <div class="mockup-header">
-            <div class="mockup-controls">
-              <span class="dot-close"></span>
-              <span class="dot-minimize"></span>
-              <span class="dot-maximize"></span>
-            </div>
-            <div class="mockup-title">MigrateKit Migration Wizard</div>
-          </div>
-          
-          <div class="mockup-body">
-            <!-- Sidebar -->
-            <div class="mockup-sidebar">
-              <div class="sidebar-item active">📦 Backup Engine</div>
-              <div class="sidebar-item">🚀 Restore Engine</div>
-              <div class="sidebar-item">🔑 License Key</div>
-              <div class="sidebar-item">⚙️ Settings</div>
-            </div>
-            
-            <!-- Content -->
-            <div class="mockup-content">
-              <h4 class="mockup-content-title">Backup Configuration</h4>
-              <p class="mockup-content-sub">Select directories and profiles to package</p>
-              
-              <div class="mockup-checklist">
-                <label class="check-item">
-                  <input type="checkbox" checked disabled>
-                  <span>User Documents & Folders</span>
-                </label>
-                <label class="check-item">
-                  <input type="checkbox" checked disabled>
-                  <span>Google Chrome Profiles</span>
-                </label>
-                <label class="check-item">
-                  <input type="checkbox" checked disabled>
-                  <span>AppData Configs (Selective)</span>
-                </label>
-                <label class="check-item">
-                  <input type="checkbox" checked disabled>
-                  <span>Windows Registry Hives</span>
-                </label>
+
+        <div class="product-panel" aria-label="MigrateKit product preview">
+          <div class="window-bar"><div class="window-dots"><i></i><i></i><i></i></div><span>MigrateKit</span><small>Backup Engine</small></div>
+          <div class="product-body">
+            <aside class="product-side">
+              <div class="side-logo"><span class="brand-mark small"><span></span><span></span><span></span></span></div>
+              <div class="side-item active">Backup</div>
+              <div class="side-item">Restore</div>
+              <div class="side-item">License</div>
+              <div class="side-item">Settings</div>
+              <div class="side-spacer"></div>
+              <div class="side-status">● Ready</div>
+            </aside>
+            <div class="product-main">
+              <div class="product-head"><div><p class="mini-label">BACKUP WIZARD</p><h3>Select what to migrate</h3></div><span class="badge">FREE</span></div>
+              <div class="data-grid">
+                <div class="data-card selected"><span class="icon">D</span><div><strong>Documents</strong><small>User files</small></div><span class="check">✓</span></div>
+                <div class="data-card selected"><span class="icon">C</span><div><strong>Chrome</strong><small>Profile data</small></div><span class="check">✓</span></div>
+                <div class="data-card selected"><span class="icon">A</span><div><strong>AppData</strong><small>Selected apps</small></div><span class="check">✓</span></div>
+                <div class="data-card"><span class="icon">R</span><div><strong>Registry</strong><small>Selected keys</small></div><span class="check empty">○</span></div>
               </div>
-              
-              <div class="mockup-progress-section">
-                <div class="progress-details">
-                  <span id="mock-status-text">Ready to backup</span>
-                  <span id="mock-percentage">0%</span>
-                </div>
-                <div class="mockup-progress-bar">
-                  <div class="progress-fill" id="mock-progress-fill"></div>
-                </div>
-              </div>
-              
-              <button class="btn btn-primary btn-block" id="btn-run-simulation">Execute Backup Simulation</button>
-            </div>
-          </div>
-          
-          <!-- Mock Terminal Console -->
-          <div class="mockup-console">
-            <div class="console-header">System Operations Console Output</div>
-            <div class="console-body" id="mock-console-log">
-              <p class="log-info">[System] MigrateKit Engine Initialized. Ready for simulation.</p>
+              <div class="progress-wrap"><div class="progress-row"><span>Archive preparation</span><b id="preview-percent">72%</b></div><div class="progress"><span style="width:72%"></span></div><small>Ready to create MigrateKit_Backup.migratekit</small></div>
+              <button class="preview-btn" id="preview-btn">Preview backup flow</button>
+              <div class="preview-log" id="preview-log">Waiting for input…</div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Features Section -->
-  <section id="features" class="section">
-    <div class="section-header">
-      <h2 class="section-title">Built for power users & administrators</h2>
-      <p class="section-subtitle">No cloud storage uploads. No remote hosting. Completely secure local packaging.</p>
-    </div>
-    
-    <div class="features-grid">
-      <div class="feature-card fade-in">
-        <div class="feature-icon-wrapper">📂</div>
-        <h3 class="feature-title">Profile Indexing</h3>
-        <p class="feature-body">Intelligently indexes folders like Documents, Desktop, Pictures, and Downloads. Automatically bypasses heavy local caches, logs, and temp directories to save space.</p>
+    <section class="proof-strip">
+      <div class="container proof-grid">
+        <div><strong>Backup is free</strong><span>No account required</span></div>
+        <div><strong>One portable file</strong><span>Easy to move between PCs</span></div>
+        <div><strong>Restore when ready</strong><span>License unlocks the restore engine</span></div>
       </div>
-      
-      <div class="feature-card fade-in">
-        <div class="feature-icon-wrapper">🌐</div>
-        <h3 class="feature-title">Complete Browser Sync</h3>
-        <p class="feature-body">Extracts and packages bookmarks, search history, settings, credentials, and installed extensions from Chrome. Restores them directly to the target system default folders.</p>
-      </div>
-      
-      <div class="feature-card fade-in">
-        <div class="feature-icon-wrapper">⚙️</div>
-        <h3 class="feature-title">Registry Hives Export</h3>
-        <p class="feature-body">Allows automatic export of specified system registry hives and software keys. Resolves environment configurations to prevent broken desktop links on fresh installations.</p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Interactive Live Demo Playground -->
-  <section id="demo" class="section alt-bg">
-    <div class="section-header">
-      <h2 class="section-title">Test the Verification Pipeline</h2>
-      <p class="section-subtitle">Simulate our validation scripts to see how data integrity is asserted in the sandbox environment.</p>
-    </div>
-    
-    <div class="demo-playground">
-      <div class="playground-controls">
-        <button class="playground-tab active" data-script="verify">verify_integrity.ps1</button>
-        <button class="playground-tab" data-script="chrome">test_chrome.ps1</button>
-        <button class="playground-tab" data-script="permissions">fix_permissions.ps1</button>
-      </div>
-      
-      <div class="playground-terminal">
-        <div class="terminal-header">
-          <span class="terminal-title">PowerShell Sandbox Environment</span>
-          <span class="terminal-badge">Inactive</span>
-        </div>
-        <div class="terminal-body" id="playground-terminal-body">
-          <p class="terminal-line text-comment"># Select a validation script tab and click Run below to simulate...</p>
-        </div>
-        <div class="terminal-footer">
-          <button class="btn btn-secondary" id="btn-run-script">Run Script Simulation</button>
+    <section class="section-pad" id="features">
+      <div class="container">
+        <div class="section-intro"><span class="kicker">WHAT IT ACTUALLY DOES</span><h2>A migration utility built around the jobs you need done.</h2><p>No fake dashboards. No cloud-first workflow. Pick data, make a package, move it, restore it.</p></div>
+        <div class="feature-grid">
+          <article class="feature-card"><span class="feature-number">01</span><h3>Personal files</h3><p>Package Documents, Desktop, Downloads, Pictures, Videos and Music from the current Windows profile.</p><div class="feature-meta">Local → .migratekit</div></article>
+          <article class="feature-card"><span class="feature-number">02</span><h3>Chrome migration</h3><p>Carry supported Chrome profile files and extensions with the rest of the migration package.</p><div class="feature-meta">Profile-aware</div></article>
+          <article class="feature-card"><span class="feature-number">03</span><h3>Selective AppData</h3><p>Include only the application folders you actually need instead of dragging an entire AppData tree across machines.</p><div class="feature-meta">You choose</div></article>
+          <article class="feature-card"><span class="feature-number">04</span><h3>Registry export</h3><p>Export explicitly selected registry keys into the archive so migration stays controlled instead of blindly copying system state.</p><div class="feature-meta">Selective keys</div></article>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- How It Works Section -->
-  <section id="how-it-works" class="section">
-    <div class="section-header">
-      <h2 class="section-title">Seamless migration workflow</h2>
-      <p class="section-subtitle">How to transition data from old hardware to a clean Windows 11 installation.</p>
-    </div>
-    
-    <div class="steps-flow">
-      <div class="step-item fade-in">
-        <div class="step-num">01</div>
-        <h3 class="step-title">Execute the Backup</h3>
-        <p class="step-body">Select the folders, browser details, and registries on your source machine. Package them into a compressed `.migratekit` archive file locally.</p>
+    <section class="dark-section section-pad" id="workflow">
+      <div class="container">
+        <div class="section-intro light"><span class="kicker">THREE STEPS</span><h2>Old PC → one file → new PC.</h2><p>That is the entire workflow.</p></div>
+        <div class="workflow-grid">
+          <div class="workflow-card"><span class="step">01</span><h3>Back up</h3><p>Run MigrateKit on the source Windows install, choose the data you want and create the archive.</p><code>MigrateKit_Backup.migratekit</code></div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-card"><span class="step">02</span><h3>Transfer</h3><p>Copy the archive using a USB drive, network share or storage service you already trust.</p><code>move the file</code></div>
+          <div class="workflow-arrow">→</div>
+          <div class="workflow-card"><span class="step">03</span><h3>Restore</h3><p>Install MigrateKit on the target PC, activate the restore engine and choose what to put back.</p><code>restore selected data</code></div>
+        </div>
       </div>
-      
-      <div class="step-item fade-in">
-        <div class="step-num">02</div>
-        <h3 class="step-title">Transfer the Package</h3>
-        <p class="step-body">Move the portable archive file to your new Windows 11 target machine using an external drive, network share, or cloud folder.</p>
-      </div>
-      
-      <div class="step-item fade-in">
-        <div class="step-num">03</div>
-        <h3 class="step-title">Run System Restore</h3>
-        <p class="step-body">Unlock the restore engine inside the target machine using your license key, select your archive file, and click Execute System Restore.</p>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Security Section -->
-  <section id="security" class="section alt-bg">
-    <div class="section-header">
-      <h2 class="section-title">Enterprise-Grade Security</h2>
-      <p class="section-subtitle">Your data never leaves your physical control.</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card fade-in">
-        <div class="feature-icon-wrapper">🔒</div>
-        <h3 class="feature-title">End-to-End Encryption</h3>
-        <p class="feature-body">Archives are secured using AES-256 encryption. Only the intended target machine with the proper license can extract the contents.</p>
-      </div>
-      <div class="feature-card fade-in">
-        <div class="feature-icon-wrapper">🛡️</div>
-        <h3 class="feature-title">Zero Telemetry</h3>
-        <p class="feature-body">We respect your privacy. MigrateKit operates 100% offline and never sends usage data, diagnostics, or file hashes to our servers.</p>
-      </div>
-      <div class="feature-card fade-in">
-        <div class="feature-icon-wrapper">✅</div>
-        <h3 class="feature-title">Immutable Hashes</h3>
-        <p class="feature-body">Every file is hashed before and after migration to guarantee absolute data integrity. Corrupted archives are flagged immediately.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials Section -->
-  <section id="testimonials" class="section">
-    <div class="section-header">
-      <h2 class="section-title">Trusted by IT Professionals</h2>
-      <p class="section-subtitle">See what system administrators are saying about MigrateKit.</p>
-    </div>
-    <div class="features-grid">
-      <div class="feature-card fade-in" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <p class="feature-body" style="font-style: italic; margin-bottom: 1.5rem;">"MigrateKit cut our OS deployment time in half. Being able to pack the Chrome profile with local AppData is a massive time-saver for our department."</p>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #3b82f6; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">SJ</div>
-          <div>
-            <div style="font-weight: 600; font-size: 0.9rem;">Sarah Jenkins</div>
-            <div style="font-size: 0.8rem; color: var(--color-text-muted);">IT Director, TechFlow</div>
+    <section class="section-pad">
+      <div class="container split-grid">
+        <div class="callout-card">
+          <span class="kicker">BUILT FOR WINDOWS</span>
+          <h2>Designed for the annoying part of a fresh install.</h2>
+          <p>Windows installs itself. Your personal setup does not. MigrateKit focuses on the user data and configuration that normally has to be reconstructed by hand.</p>
+          <div class="bullet-list"><span>✓ Portable .migratekit archive</span><span>✓ Background file operations</span><span>✓ Progress reporting and cancellation</span><span>✓ Validation tooling included</span></div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-head"><span>migration.log</span><span class="live">● LIVE PREVIEW</span></div>
+          <div class="terminal-lines" id="terminal-lines">
+            <div><b>10:02:11</b> Loading user profile</div>
+            <div><b>10:02:12</b> Documents indexed</div>
+            <div><b>10:02:13</b> Chrome profile detected</div>
+            <div><b>10:02:14</b> Preparing selected AppData</div>
+            <div><b>10:02:15</b> Archive ready</div>
           </div>
+          <button class="terminal-action" id="terminal-action">Run diagnostic preview</button>
         </div>
       </div>
-      <div class="feature-card fade-in" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <p class="feature-body" style="font-style: italic; margin-bottom: 1.5rem;">"The ability to securely export registry hives without relying on cloud solutions perfectly fits our strict compliance requirements."</p>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #10b981; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">MR</div>
-          <div>
-            <div style="font-weight: 600; font-size: 0.9rem;">Marcus Reed</div>
-            <div style="font-size: 0.8rem; color: var(--color-text-muted);">Systems Administrator</div>
-          </div>
-        </div>
-      </div>
-      <div class="feature-card fade-in" style="display: flex; flex-direction: column; justify-content: space-between;">
-        <p class="feature-body" style="font-style: italic; margin-bottom: 1.5rem;">"I've migrated over 50 workstations using this utility. It is flawless. The UI is straightforward and the validation scripts give me peace of mind."</p>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #f59e0b; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white;">EL</div>
-          <div>
-            <div style="font-weight: 600; font-size: 0.9rem;">Elena Lin</div>
-            <div style="font-size: 0.8rem; color: var(--color-text-muted);">Freelance Tech Support</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Pricing Section -->
-  <section id="pricing" class="section alt-bg">
-    <div class="section-header">
-      <h2 class="section-title">Flexible licensing plans</h2>
-      <p class="section-subtitle">Backing up files is always 100% free. Restoration utilities require an active license.</p>
-    </div>
-    
-    <!-- Billing Toggle -->
-    <div class="billing-toggle-wrapper">
-      <span class="toggle-label active" id="label-single">Single PC License</span>
-      <button class="toggle-button" id="billing-toggle" aria-label="Toggle billing plan"></button>
-      <span class="toggle-label" id="label-family">Family Bundle (5 PCs)</span>
-    </div>
-    
-    <div class="pricing-container">
-      <div class="pricing-card fade-in">
-        <div class="card-header">
-          <h3 class="card-tier" id="license-tier-title">Single License</h3>
-          <div class="price-container">
-            <span class="currency">$</span>
-            <span class="price-val" id="license-price">29.99</span>
-            <span class="period">/ one-time</span>
-          </div>
-        </div>
-        <div class="card-body">
-          <ul class="features-list">
-            <li>✔️ Unlimited backup generation (Always Free)</li>
-            <li>✔️ <span id="license-pc-count">Single (1)</span> PC restoration activation</li>
-            <li>✔️ Full Chrome profile credential restore</li>
-            <li>✔️ Selective Application Data (AppData) recovery</li>
-            <li>✔️ Registry configurations import/export tool</li>
-            <li>✔️ HighDPI-native executable utility</li>
-          </ul>
-          <button class="btn btn-primary btn-block" id="btn-buy">Get License Key</button>
+    <section class="section-pad pricing-section" id="pricing">
+      <div class="container">
+        <div class="section-intro"><span class="kicker">PRICING</span><h2>Free to back up. Pay once to restore.</h2><p>Keep the public utility simple: download the app first, purchase only when you need the restore engine.</p></div>
+        <div class="pricing-grid">
+          <article class="price-card"><div class="price-top"><span>Free</span><span class="price-tag">$0</span></div><h3>Backup</h3><p>Create and move migration packages.</p><ul><li>Personal folders</li><li>Chrome profile data</li><li>Selective AppData</li><li>Selected registry keys</li></ul><a class="btn btn-ghost dark-btn" href="https://github.com/Jamezboi/MigrateKit/releases/latest">Download</a></article>
+          <article class="price-card featured"><div class="ribbon">MOST USEFUL</div><div class="price-top"><span>Premium</span><span class="price-tag">$29.99</span></div><h3>Restore</h3><p>Unlock the full migration workflow on the target PC.</p><ul><li>Everything in Backup</li><li>System restore engine</li><li>Saved license activation</li><li>Windows target workflow</li></ul><button class="btn btn-primary" id="buy-btn">Get restore license</button></article>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FAQ Section -->
-  <section id="faq" class="section">
-    <div class="section-header">
-      <h2 class="section-title">Frequently Asked Questions</h2>
-      <p class="section-subtitle">Everything you need to know about the MigrateKit utility.</p>
-    </div>
-    
-    <div class="faq-accordion-container">
-      <div class="faq-item">
-        <button class="faq-trigger">Is my data uploaded to the cloud during backup?</button>
-        <div class="faq-content">
-          <p>No. MigrateKit runs completely locally on your machine. Your backup files, folders, profile configurations, and passwords never leave your system. Your data remains 100% private and offline.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-trigger">What credentials does Chrome migration sync?</button>
-        <div class="faq-content">
-          <p>MigrateKit securely packages the local Chrome Login Data database, which stores encrypted user passwords, along with cookie databases, session cookies, configuration files, search histories, and list extensions.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-trigger">Does the program require Admin Privileges?</button>
-        <div class="faq-content">
-          <p>Yes. Accessing specific registry keys (like system variables) and rewriting secure files in target profile directories during restoration requires running the application with administrator privileges.</p>
-        </div>
-      </div>
-      
-      <div class="faq-item">
-        <button class="faq-trigger">Can I reuse a single license key multiple times?</button>
-        <div class="faq-content">
-          <p>A Single PC License binds to your computer configuration and allows unlimited restorations on that specific machine. If you need to perform migrations across multiple devices, we recommend the Family Bundle (valid on 5 devices).</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    <section class="section-pad" id="faq">
+      <div class="container faq-layout"><div class="section-intro"><span class="kicker">FAQ</span><h2>Practical answers.</h2><p>The details that matter before a migration.</p></div><div class="faq-list">
+        <details open><summary>Is my data uploaded anywhere?</summary><p>The desktop migration engine is designed around local file operations. The archive is created on your machine and moved by you.</p></details>
+        <details><summary>Do I need the license to create a backup?</summary><p>No. Backups are the free portion of the application. The license unlocks the restore workflow.</p></details>
+        <details><summary>What happens to files that are locked?</summary><p>Locked files can be skipped and reported. Chrome should be closed during migration for the most reliable profile capture.</p></details>
+        <details><summary>Where do I get the executable?</summary><p>Use the Download button at the top of this page or the latest GitHub release.</p></details>
+      </div></div>
+    </section>
+  </main>
 
-  <!-- Checkout & License Generator Modal -->
-  <div class="modal-overlay" id="checkout-modal">
-    <div class="modal-card">
-      <button class="modal-close" id="modal-close" aria-label="Close Checkout Modal">&times;</button>
-      
-      <div class="modal-steps" id="checkout-step-payment">
-        <h3 class="modal-title">Secure Checkout</h3>
-        <p class="modal-subtitle">Configure payment method details to activate license key</p>
-        
-        <div class="order-summary">
-          <div class="summary-row">
-            <span id="modal-product-name">MigrateKit Premium License (1 PC)</span>
-            <strong id="modal-product-price">$29.99 USD</strong>
-          </div>
-          <hr class="summary-divider">
-          <div class="summary-row total">
-            <span>Total Amount Due</span>
-            <strong id="modal-product-total">$29.99 USD</strong>
-          </div>
-        </div>
-
-        <div class="checkout-actions">
-          <p class="checkout-notice">Select your sandbox billing method to simulate checkout. No charges will be made.</p>
-          
-          <!-- Mock PayPal Button -->
-          <button class="btn-paypal" id="btn-paypal-simulate">
-            <span class="paypal-logo"><i>Pay</i><i>Pal</i></span>
-            <span class="paypal-text">Simulate Checkout</span>
-          </button>
-          
-          <button class="btn-card-checkout" id="btn-dev-simulate">
-            Instant Key Generation (Developer Mode)
-          </button>
-        </div>
-      </div>
-      
-      <!-- Key Delivery Screen -->
-      <div class="modal-steps hidden" id="checkout-step-success">
-        <div class="success-icon">🎉</div>
-        <h3 class="modal-title">Purchase Complete</h3>
-        <p class="modal-subtitle">Your license key has been generated successfully. Copy and input this key in your desktop client's activation page.</p>
-        
-        <div class="license-display-box">
-          <code id="license-key-text">MIGRK-XXXXX-XXXXX-XXXXX</code>
-          <button class="btn-copy" id="btn-copy-key">Copy</button>
-        </div>
-        
-        <p class="copy-success-message" id="copy-success-msg">Copied to clipboard!</p>
-        
-        <button class="btn btn-primary btn-block" id="btn-finish">Close and Download App</button>
-      </div>
+  <div class="modal" id="license-modal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+      <span class="kicker">RESTORE LICENSE</span>
+      <h2 id="modal-title">Unlock restore on the new PC.</h2>
+      <p>Demo checkout is included for the storefront. Production PayPal credentials can be connected later without changing the rest of the UI.</p>
+      <div class="checkout-row"><span>MigrateKit Premium</span><strong>$29.99 USD</strong></div>
+      <button class="btn btn-primary full" id="simulate-buy">Simulate successful checkout</button>
+      <div class="license-result" id="license-result" hidden><span>Your demo license key</span><code id="license-key">XXXXX-XXXXX-XXXXX-XXXXX</code><button class="copy-btn" id="copy-key">Copy key</button><a href="https://github.com/Jamezboi/MigrateKit/releases/latest" class="btn btn-ghost full">Download the app</a></div>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer class="footer">
-    <div class="footer-container">
-      <p class="copyright">&copy; 2026 MigrateKit. Made for Windows 11 migrations.</p>
-      <div class="footer-links">
-        <a href="https://github.com/Jamezboi/MigrateKit">GitHub Project</a>
-        <a href="#faq">Support & Documentation</a>
-        <a href="#demo">PowerShell Tools</a>
-      </div>
-    </div>
+    <div class="container footer-grid"><div><a class="brand" href="#top"><span class="brand-mark"><span></span><span></span><span></span></span><span>MigrateKit</span></a><p>Windows 11 migration, without the reconstruction project.</p></div><div class="footer-links"><a href="https://github.com/Jamezboi/MigrateKit">GitHub</a><a href="https://github.com/Jamezboi/MigrateKit/releases/latest">Latest release</a><a href="#faq">FAQ</a></div></div>
+    <div class="container footer-bottom"><span>© 2026 MigrateKit</span><span>Built for Windows users</span></div>
   </footer>
 
-  <!-- Three.js CDN -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"></script>
-  
-  <!-- Main Website Script -->
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
