@@ -483,6 +483,7 @@ class MigrateKitApp(ctk.CTk):
         
         self.msg_queue = queue.Queue()
         self.cancel_event = threading.Event()
+        self.user_profile = os.environ.get("USERPROFILE", "")
         self.engine = MigrationEngine(self.msg_queue, self.cancel_event)
         self.active_thread = None
         
