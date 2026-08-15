@@ -1,0 +1,2227 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CarVerify | Premium Vehicle History Reports</title>
+  
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#090d16',     // Deepest space slate
+              card: '#111827',     // Premium grey slate for cards
+              border: '#1f2937',   // Slate borders
+              emerald: '#10b981',  // Primary brand neon-ish green
+              emeraldGlow: 'rgba(16, 185, 129, 0.15)',
+              amber: '#f59e0b',    // Warning
+              danger: '#ef4444',   // Alarm/Critical
+              info: '#3b82f6',     // Informative blue
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'pulse-glow': 'pulseGlow 2s infinite ease-in-out',
+            'spin-slow': 'spin 3s linear infinite',
+            'scan-line': 'scanLine 2.5s infinite linear',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles for premium aesthetics -->
+  <style type="text/css">
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+
+    /* Radar/Scan Glows */
+    @keyframes pulseGlow {
+      0%, 100% {
+        opacity: 0.15;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.35;
+        transform: scale(1.05);
+      }
+    }
+    @keyframes scanLine {
+      0% {
+        top: 0%;
+      }
+      50% {
+        top: 100%;
+      }
+      100% {
+        top: 0%;
+      }
+    }
+
+    /* Radial gradients background blur */
+    .glow-spot-1 {
+      background: radial-gradient(circle, rgba(16,185,129,0.12) 0%, rgba(9,13,22,0) 70%);
+    }
+    .glow-spot-2 {
+      background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(9,13,22,0) 70%);
+    }
+    .glow-spot-red {
+      background: radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(9,13,22,0) 70%);
+    }
+
+    /* Floating navigation active state indicator */
+    .nav-active {
+      color: #10b981;
+      border-left-color: #10b981;
+      background-color: rgba(16, 185, 129, 0.05);
+    }
+  </style>
+</head>
+<body class="bg-brand-dark text-slate-100 min-h-screen font-sans selection:bg-brand-emerald selection:text-brand-dark overflow-x-hidden antialiased">
+
+  <!-- Background Decorative Glowing Blobs -->
+  <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+    <div class="absolute glow-spot-1 w-[800px] h-[800px] -top-[300px] -left-[200px] animate-pulse-glow"></div>
+    <div class="absolute glow-spot-2 w-[700px] h-[700px] top-[400px] -right-[100px] animate-pulse-glow" style="animation-delay: 1s;"></div>
+    <div id="dynamic-red-glow" class="absolute glow-spot-red w-[600px] h-[600px] bottom-[200px] left-[10%] hidden animate-pulse-glow"></div>
+  </div>
+
+  <!-- Main Navigation Header -->
+  <header class="sticky top-0 z-40 bg-brand-dark/80 backdrop-blur-md border-b border-brand-border/60 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToHome()">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-brand-emerald to-emerald-600 flex items-center justify-center shadow-lg shadow-brand-emerald/20">
+          <i data-lucide="shield-check" class="w-5 h-5 text-brand-dark"></i>
+        </div>
+        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+          Car<span class="text-brand-emerald">Verify</span>
+        </span>
+      </div>
+      <div class="flex items-center space-x-4">
+        <a href="#" class="hidden sm:inline-flex text-xs font-semibold text-slate-400 hover:text-white transition-colors duration-200" onclick="showSampleVIN('ROLLBACK')">Demo Rollback</a>
+        <a href="#" class="hidden sm:inline-flex text-xs font-semibold text-slate-400 hover:text-white transition-colors duration-200" onclick="showSampleVIN('ACCIDENT')">Demo Accidents</a>
+        <a href="#" class="hidden sm:inline-flex text-xs font-semibold text-slate-400 hover:text-white transition-colors duration-200" onclick="showSampleVIN('STOLEN')">Demo Stolen</a>
+        <div class="h-4 w-[1px] bg-brand-border hidden sm:block"></div>
+        <span class="text-xs text-slate-400 flex items-center space-x-1.5 bg-brand-border/40 px-2.5 py-1 rounded-full border border-brand-border/50">
+          <span class="w-1.5 h-1.5 bg-brand-emerald rounded-full animate-pulse"></span>
+          <span>Core DB Online</span>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Page Container -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-[calc(100vh-4rem)] flex flex-col justify-center">
+
+    <!-- 1. HERO SECTION (The Hook) -->
+    <div id="hero-section" class="w-full max-w-4xl mx-auto text-center space-y-12 transition-all duration-500 ease-out py-8">
+      
+      <!-- Headline & Hook -->
+      <div class="space-y-4">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-emerald/10 border border-brand-emerald/20 text-brand-emerald text-xs font-medium tracking-wide">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Secure Blockchain-Verified Database Registry</span>
+        </div>
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight text-white">
+          Discover the Hidden History <br>
+          <span class="bg-gradient-to-r from-brand-emerald via-teal-400 to-emerald-500 bg-clip-text text-transparent">of Any Vehicle</span>
+        </h1>
+        <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+          Verify mileage logs, accident records, theft reports, and market valuations instantly before you buy. Don't risk thousands on a hidden lemon.
+        </p>
+      </div>
+
+      <!-- Search Interface Container -->
+      <div class="max-w-xl mx-auto bg-brand-card/75 border border-brand-border/80 backdrop-blur-md rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+        <!-- Accent Glow Ring -->
+        <div class="absolute -top-[150px] -right-[150px] w-[300px] h-[300px] rounded-full bg-brand-emerald/5 blur-3xl pointer-events-none"></div>
+        
+        <!-- Toggle Tabs -->
+        <div class="flex p-1 bg-brand-dark/80 rounded-xl border border-brand-border/50 mb-6">
+          <button id="tab-vin" class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-300 bg-brand-card text-brand-emerald shadow-md" onclick="switchSearchTab('vin')">
+            <span class="flex items-center justify-center space-x-2">
+              <i data-lucide="fingerprint" class="w-4 h-4"></i>
+              <span>VIN Search</span>
+            </span>
+          </button>
+          <button id="tab-plate" class="flex-1 py-2 text-sm font-semibold text-slate-400 rounded-lg hover:text-white transition-all duration-300" onclick="switchSearchTab('plate')">
+            <span class="flex items-center justify-center space-x-2">
+              <i data-lucide="credit-card" class="w-4 h-4"></i>
+              <span>License Plate</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Forms Container -->
+        <form id="search-form" onsubmit="handleSearch(event)" class="space-y-4">
+          <!-- VIN Input Group -->
+          <div id="vin-input-group" class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-brand-emerald transition-colors duration-200">
+              <i data-lucide="key-round" class="w-5 h-5"></i>
+            </div>
+            <input type="text" id="vin-input" placeholder="Enter 17-character VIN (e.g., WP0AB2...)" 
+                   class="w-full pl-12 pr-4 py-4 bg-brand-dark/95 border border-brand-border/85 rounded-xl text-white font-mono placeholder:text-slate-600 focus:outline-none focus:border-brand-emerald focus:ring-1 focus:ring-brand-emerald transition-all duration-200 text-sm tracking-widest uppercase"
+                   maxlength="17" />
+            <div class="absolute right-3 top-3.5 flex items-center space-x-1">
+              <span id="vin-counter" class="text-[10px] font-mono text-slate-500 bg-brand-border px-2 py-1 rounded">0/17</span>
+            </div>
+          </div>
+
+          <!-- License Plate Input Group (Hidden initially) -->
+          <div id="plate-input-group" class="hidden flex space-x-2">
+            <!-- Mock Country Picker -->
+            <div class="relative min-w-[90px]">
+              <select id="country-select" class="w-full px-3 py-4 bg-brand-dark/95 border border-brand-border/85 rounded-xl text-white font-medium focus:outline-none focus:border-brand-emerald text-sm appearance-none cursor-pointer">
+                <option value="CA" selected>🇨🇦 CA</option>
+                <option value="US">🇺🇸 US</option>
+                <option value="DE">🇩🇪 DE</option>
+                <option value="FR">🇫🇷 FR</option>
+                <option value="UK">🇬🇧 UK</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <!-- Plate Number Input -->
+            <div class="relative flex-1 group">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-brand-emerald transition-colors duration-200">
+                <i data-lucide="hash" class="w-5 h-5"></i>
+              </div>
+              <input type="text" id="plate-input" placeholder="Plate Number (e.g., ABCD 123)" 
+                     class="w-full pl-12 pr-4 py-4 bg-brand-dark/95 border border-brand-border/85 rounded-xl text-white font-bold placeholder:text-slate-600 focus:outline-none focus:border-brand-emerald focus:ring-1 focus:ring-brand-emerald transition-all duration-200 text-sm tracking-wider uppercase" />
+            </div>
+          </div>
+
+          <!-- Error Alert Banner -->
+          <div id="search-error" class="hidden flex items-center space-x-2 text-brand-danger text-xs font-semibold bg-brand-danger/10 border border-brand-danger/20 p-3 rounded-lg text-left transition-all duration-200">
+            <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+            <span id="error-message">Please enter a valid 17-character VIN.</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-brand-emerald to-emerald-500 hover:from-emerald-400 hover:to-brand-emerald text-brand-dark font-extrabold text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-brand-emerald/10 hover:shadow-brand-emerald/25 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-2">
+            <i data-lucide="search" class="w-4 h-4"></i>
+            <span>Check Car History</span>
+          </button>
+        </form>
+
+        <p class="text-slate-500 text-[11px] mt-4 font-light text-left leading-relaxed">
+          By submitting, you agree to query verified automotive databases. Standard terms of registry privacy policies apply.
+        </p>
+      </div>
+
+      <!-- Trust Badges & Database Partners -->
+      <div class="max-w-3xl mx-auto space-y-6 pt-6">
+        <h3 class="text-[11px] uppercase tracking-widest text-slate-500 font-bold">Instantly Connected Database Registries</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="flex items-center space-x-2.5 p-3.5 bg-brand-card/45 border border-brand-border/50 rounded-xl transition-all hover:bg-brand-card/85">
+            <div class="p-1.5 rounded-lg bg-emerald-500/10 text-brand-emerald">
+              <i data-lucide="shield" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-xs font-bold text-slate-200 leading-tight">Theft Databases</p>
+              <p class="text-[10px] text-slate-500">Interpol, NCIC checks</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2.5 p-3.5 bg-brand-card/45 border border-brand-border/50 rounded-xl transition-all hover:bg-brand-card/85">
+            <div class="p-1.5 rounded-lg bg-emerald-500/10 text-brand-emerald">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-xs font-bold text-slate-200 leading-tight">Odometer Registries</p>
+              <p class="text-[10px] text-slate-500">National mileage logs</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2.5 p-3.5 bg-brand-card/45 border border-brand-border/50 rounded-xl transition-all hover:bg-brand-card/85">
+            <div class="p-1.5 rounded-lg bg-emerald-500/10 text-brand-emerald">
+              <i data-lucide="wrench" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-xs font-bold text-slate-200 leading-tight">Accident Records</p>
+              <p class="text-[10px] text-slate-500">Insurance claims & salvage</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2.5 p-3.5 bg-brand-card/45 border border-brand-border/50 rounded-xl transition-all hover:bg-brand-card/85">
+            <div class="p-1.5 rounded-lg bg-emerald-500/10 text-brand-emerald">
+              <i data-lucide="file-text" class="w-4 h-4"></i>
+            </div>
+            <div class="text-left">
+              <p class="text-xs font-bold text-slate-200 leading-tight">Spec Sheets</p>
+              <p class="text-[10px] text-slate-500">Factory specifications</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. SIMULATED LOADING STATE (The Engagement) -->
+    <div id="loading-section" class="hidden w-full max-w-xl mx-auto text-center space-y-8 py-10 transition-all duration-300">
+      
+      <!-- Spinning Radar Ring -->
+      <div class="relative w-40 h-40 mx-auto flex items-center justify-center">
+        <!-- Outer Glowing Pulse Ring -->
+        <div class="absolute inset-0 rounded-full border border-brand-emerald/20 animate-pulse-glow"></div>
+        <!-- Medium Ring -->
+        <div class="absolute inset-4 rounded-full border border-brand-emerald/10"></div>
+        <!-- Inner Spinning Radar -->
+        <div class="absolute inset-8 rounded-full border-t-2 border-r-2 border-brand-emerald animate-spin-slow"></div>
+        <!-- Central Tech Icon -->
+        <div class="w-16 h-16 rounded-full bg-brand-card border border-brand-border flex items-center justify-center shadow-inner relative z-10">
+          <i data-lucide="activity" class="w-8 h-8 text-brand-emerald animate-pulse"></i>
+        </div>
+        
+        <!-- Live Percentage Floating -->
+        <div class="absolute -bottom-2 bg-brand-emerald text-brand-dark px-3 py-1 rounded-full text-xs font-black tracking-wider shadow shadow-brand-emerald/40 font-mono" id="scan-percentage">
+          0%
+        </div>
+      </div>
+
+      <!-- Scanning Text Header -->
+      <div class="space-y-2">
+        <h2 class="text-xl font-bold text-white tracking-wide">SECURE VEHICLE SCAN IN PROGRESS</h2>
+        <p class="text-slate-400 text-xs font-mono uppercase tracking-widest" id="scanner-current-task">Initializing handshake...</p>
+      </div>
+
+      <!-- Sequential Database checklist -->
+      <div class="bg-brand-card border border-brand-border/60 rounded-xl p-5 text-left space-y-3.5 shadow-2xl relative">
+        <div class="absolute top-0 left-0 w-full h-1 bg-brand-border/50 overflow-hidden rounded-t-xl">
+          <div id="scan-progress-bar" class="h-full bg-gradient-to-r from-brand-emerald to-emerald-400 w-0 transition-all duration-300"></div>
+        </div>
+
+        <div id="step-0" class="flex items-center justify-between text-xs text-slate-500 font-medium transition-all duration-200">
+          <div class="flex items-center space-x-2.5">
+            <div class="status-icon"><i data-lucide="loader" class="w-4 h-4 animate-spin text-brand-emerald"></i></div>
+            <span>National vehicle registration registers</span>
+          </div>
+          <span class="status-label font-mono text-[10px]">PENDING</span>
+        </div>
+        <div id="step-1" class="flex items-center justify-between text-xs text-slate-500 font-medium transition-all duration-200">
+          <div class="flex items-center space-x-2.5">
+            <div class="status-icon"><i data-lucide="circle-dashed" class="w-4 h-4 text-slate-700"></i></div>
+            <span>International police & Interpol theft logs</span>
+          </div>
+          <span class="status-label font-mono text-[10px]">WAITING</span>
+        </div>
+        <div id="step-2" class="flex items-center justify-between text-xs text-slate-500 font-medium transition-all duration-200">
+          <div class="flex items-center space-x-2.5">
+            <div class="status-icon"><i data-lucide="circle-dashed" class="w-4 h-4 text-slate-700"></i></div>
+            <span>Periodic inspection & odometer databases</span>
+          </div>
+          <span class="status-label font-mono text-[10px]">WAITING</span>
+        </div>
+        <div id="step-3" class="flex items-center justify-between text-xs text-slate-500 font-medium transition-all duration-200">
+          <div class="flex items-center space-x-2.5">
+            <div class="status-icon"><i data-lucide="circle-dashed" class="w-4 h-4 text-slate-700"></i></div>
+            <span>Insurance claims & salvage titles databases</span>
+          </div>
+          <span class="status-label font-mono text-[10px]">WAITING</span>
+        </div>
+        <div id="step-4" class="flex items-center justify-between text-xs text-slate-500 font-medium transition-all duration-200">
+          <div class="flex items-center space-x-2.5">
+            <div class="status-icon"><i data-lucide="circle-dashed" class="w-4 h-4 text-slate-700"></i></div>
+            <span>Manufacturer databases & factory technical data</span>
+          </div>
+          <span class="status-label font-mono text-[10px]">WAITING</span>
+        </div>
+      </div>
+
+      <!-- Live Terminal Console Log -->
+      <div class="bg-brand-dark/95 border border-brand-border rounded-lg p-3 text-left font-mono text-[10px] text-slate-400 space-y-1 h-28 overflow-y-auto shadow-inner relative" id="scan-terminal">
+        <!-- Terminal lines injected via JS -->
+      </div>
+    </div>
+
+    <!-- 3. THE VEHICLE HISTORY REPORT (The Core Product) -->
+    <div id="report-section" class="hidden w-full space-y-8 transition-all duration-500 py-4">
+      
+      <!-- Back to search CTA / Print header bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-brand-border/60">
+        <button onclick="resetToHome()" class="inline-flex items-center space-x-2 text-xs font-bold text-slate-400 hover:text-white transition-colors duration-200 bg-brand-card border border-brand-border px-3 py-1.5 rounded-lg">
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Check Another Vehicle</span>
+        </button>
+        <div class="flex items-center space-x-3">
+          <span class="text-xs text-slate-500 font-mono">Report ID: <span id="report-id" class="text-slate-300">#482-B9A-XLS</span></span>
+          <button onclick="window.print()" class="inline-flex items-center space-x-2 text-xs font-bold text-brand-dark bg-brand-emerald hover:bg-emerald-400 px-3.5 py-1.5 rounded-lg shadow-md transition-all duration-200">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Export Report (PDF)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Header Summary Card (Overview and Overall Score) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Car Photo & Primary Info Card -->
+        <div class="lg:col-span-2 bg-brand-card border border-brand-border rounded-2xl overflow-hidden shadow-xl flex flex-col justify-between relative">
+          <!-- Background accent glow -->
+          <div class="absolute top-0 right-0 w-[250px] h-[250px] bg-brand-emerald/5 blur-3xl pointer-events-none"></div>
+          
+          <div class="p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+            <div class="space-y-3.5">
+              <div class="flex flex-wrap gap-2 text-sm">
+                <span id="report-pill-year" class="px-2.5 py-0.5 rounded bg-brand-border text-xs text-slate-300 font-bold">2021</span>
+                <span id="report-pill-country" class="px-2.5 py-0.5 rounded bg-brand-border text-xs text-slate-300 font-bold">🇺🇸 Origin: USA</span>
+                <span id="report-pill-odometer" class="px-2.5 py-0.5 rounded bg-brand-dark border border-brand-border/60 text-xs text-brand-emerald font-bold"><i data-lucide="gauge" class="inline w-3 h-3 mr-1 mb-0.5"></i>--- mi</span>
+              </div>
+              <h2 id="report-car-title" class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">Porsche 911 Carrera S</h2>
+              <p id="report-car-subtitle" class="text-slate-400 font-medium text-sm md:text-base">Coupe | 3.0L Flat-6 | RWD</p>
+              <div class="flex items-center space-x-3.5">
+                <span class="text-xs font-mono text-slate-400 bg-brand-dark px-3 py-1.5 rounded border border-brand-border/60 flex items-center space-x-2">
+                  <span class="font-bold text-slate-500">VIN:</span>
+                  <span id="report-car-vin" class="text-slate-300 tracking-wider">WP0AB2A9XLS******</span>
+                </span>
+                <button onclick="copyVIN()" class="text-slate-500 hover:text-brand-emerald transition-colors duration-200 p-1 bg-brand-dark border border-brand-border/60 rounded" title="Copy VIN">
+                  <i id="copy-icon" data-lucide="copy" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Market Value estimate card -->
+            <div class="bg-brand-dark/95 border border-brand-border/80 rounded-xl p-4.5 min-w-[200px] shadow-lg text-left">
+              <p class="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-1">Market Value Range</p>
+              <div class="text-xl font-extrabold text-slate-200 mb-1" id="report-market-val">$115,000 - $128,000</div>
+              <p class="text-[10px] text-brand-emerald flex items-center space-x-1">
+                <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                <span>Strong Value Retention</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Car Image Placeholder styled premium -->
+          <div class="px-6 pb-6 relative z-10 flex-grow">
+            <div class="w-full h-56 sm:h-64 rounded-xl overflow-hidden border border-brand-border/80 relative group">
+              <!-- Radial gradient on top of photo -->
+              <div class="absolute inset-0 bg-gradient-to-t from-brand-card via-transparent to-brand-card/10 z-10"></div>
+              <img id="report-car-img" src="https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80" 
+                   alt="Vehicle Snapshot" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+              
+              <!-- Floating badges on image -->
+              <div class="absolute bottom-4 left-4 z-20 flex space-x-2">
+                <span class="bg-brand-dark/90 backdrop-blur border border-brand-border text-slate-300 px-3 py-1 rounded text-xs font-semibold flex items-center space-x-1.5 shadow">
+                  <i data-lucide="paintbrush" class="w-3.5 h-3.5 text-brand-emerald" id="report-car-color-icon"></i>
+                  <span id="report-car-color">Agate Grey Metallic</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Health Score Radial Indicator -->
+        <div class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 flex flex-col justify-between items-center text-center shadow-xl relative overflow-hidden">
+          <div class="absolute -bottom-[100px] -left-[100px] w-[200px] h-[200px] bg-blue-500/5 blur-3xl pointer-events-none"></div>
+          
+          <div class="space-y-1">
+            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide">Vehicle Health Index</h3>
+            <p class="text-[10px] text-slate-500">Calculated from 14 database factors</p>
+          </div>
+
+          <!-- Radial Circle Gauge -->
+          <div class="relative w-40 h-40 flex items-center justify-center my-4">
+            <!-- Background track SVG -->
+            <svg class="absolute w-full h-full -rotate-90">
+              <circle cx="80" cy="80" r="70" stroke="#1f2937" stroke-width="10" fill="transparent" />
+              <circle id="gauge-arc" cx="80" cy="80" r="70" stroke="#10b981" stroke-width="10" fill="transparent" 
+                      stroke-dasharray="440" stroke-dashoffset="440" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+            </svg>
+            <div class="text-center z-10">
+              <span id="report-score-num" class="text-4xl font-extrabold text-white tracking-tight">9.2</span>
+              <span class="text-slate-500 font-medium">/10</span>
+              <p id="report-score-desc" class="text-[10px] text-brand-emerald font-bold tracking-wide uppercase mt-1">Excellent</p>
+            </div>
+          </div>
+
+          <!-- Score summary badge -->
+          <div class="w-full bg-brand-dark/50 border border-brand-border/80 rounded-xl p-3 text-left">
+            <div class="flex items-center space-x-2 text-xs font-semibold" id="report-score-alert">
+              <i data-lucide="shield-check" class="w-4 h-4 text-brand-emerald flex-shrink-0" id="report-score-alert-icon"></i>
+              <span id="report-score-alert-msg" class="text-slate-300">Clean title, low-risk rating. Ideal investment candidate.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Columns: Sticky Sidebar Navigation & Dashboard Modules -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+        
+        <!-- 3A. Sidebar Navigation (Left Column) -->
+        <nav class="lg:sticky lg:top-24 space-y-1 bg-brand-card/90 border border-brand-border/80 backdrop-blur rounded-xl p-3 lg:col-span-1 shadow-md z-30">
+          <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest px-3 py-1 mb-2">Report Chapters</p>
+          <a href="#section-overview" id="nav-section-overview" class="nav-active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all" onclick="highlightNav('section-overview')">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+            <span>Executive Summary</span>
+          </a>
+          <a href="#section-timeline" id="nav-section-timeline" class="text-slate-400 hover:text-white flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all" onclick="highlightNav('section-timeline')">
+            <i data-lucide="milestone" class="w-4 h-4"></i>
+            <span>History Timeline</span>
+          </a>
+          <a href="#section-mileage" id="nav-section-mileage" class="text-slate-400 hover:text-white flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all" onclick="highlightNav('section-mileage')">
+            <i data-lucide="gauge" class="w-4 h-4"></i>
+            <span>Mileage Verification</span>
+          </a>
+          <a href="#section-damages" id="nav-section-damages" class="text-slate-400 hover:text-white flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all" onclick="highlightNav('section-damages')">
+            <i data-lucide="wrench" class="w-4 h-4"></i>
+            <span>Accidents & Damages</span>
+          </a>
+          <a href="#section-theft" id="nav-section-theft" class="text-slate-400 hover:text-white flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all" onclick="highlightNav('section-theft')">
+            <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            <span>Security & Theft Checks</span>
+          </a>
+          <a href="#section-specs" id="nav-section-specs" class="text-slate-400 hover:text-white flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all" onclick="highlightNav('section-specs')">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+            <span>Technical Spec Sheet</span>
+          </a>
+        </nav>
+
+        <!-- 3B. Report Chapters Content (Right Column) -->
+        <div class="lg:col-span-3 space-y-8">
+          
+          <!-- CHAPTER 1: EXECUTIVE SUMMARY -->
+          <div id="section-overview" class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl scroll-mt-24">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-emerald/10 text-brand-emerald flex items-center justify-center">
+                  <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Executive Summary</h3>
+                  <p class="text-[10px] text-slate-500">Key checkpoints of the vehicle status</p>
+                </div>
+              </div>
+              <span class="text-xs bg-emerald-500/10 text-brand-emerald border border-brand-emerald/20 px-2.5 py-0.5 rounded-full font-bold">Fully Compiled</span>
+            </div>
+
+            <!-- Ownership & Registration -->
+            <div class="mb-12">
+              <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="file-text" class="w-6 h-6 mr-3 text-brand-emerald"></i>
+                Ownership & Registration
+              </h3>
+              <div id="registration-grid-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="bg-brand-dark/50 border border-brand-border/40 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+                  <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Previous Owners</span>
+                  <span id="report-owners-count" class="text-2xl font-bold text-white">2</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Historical Marketplace Listings -->
+            <div class="mb-12">
+              <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="search" class="w-6 h-6 mr-3 text-brand-emerald"></i>
+                Historical Marketplace Listings
+              </h3>
+              <div id="marketplace-grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Specs Grid -->
+            <div class="mb-12">
+              <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="cpu" class="w-6 h-6 mr-3 text-brand-emerald"></i>
+                Technical Specifications
+              </h3>
+              <div id="specs-grid-container" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <!-- Dynamically populated -->
+              </div>
+              
+              <details class="bg-brand-dark/50 border border-brand-border/40 rounded-xl overflow-hidden cursor-pointer group">
+                <summary class="px-4 py-4 font-semibold text-white flex justify-between items-center outline-none">
+                  <span class="flex items-center"><i data-lucide="server" class="w-4 h-4 mr-2 text-brand-emerald"></i> View All Hidden Public Datapoints</span>
+                  <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div class="border-t border-brand-border/40 p-4">
+                  <div id="raw-data-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-2 gap-x-6 text-xs text-slate-300">
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+              </details>
+            </div>
+
+            <!-- Data Sources & Registries Queried -->
+            <div class="mb-12">
+              <h3 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i data-lucide="database" class="w-6 h-6 mr-3 text-brand-emerald"></i>
+                Registries & Public Databases Queried
+              </h3>
+              <div class="bg-brand-dark/50 border border-brand-border/40 rounded-xl overflow-hidden">
+                <table class="w-full text-left text-sm text-slate-300">
+                  <thead class="bg-brand-dark border-b border-brand-border/40 text-[10px] uppercase font-bold text-slate-500">
+                    <tr>
+                      <th class="px-4 py-3">Database / Source</th>
+                      <th class="px-4 py-3">Description</th>
+                      <th class="px-4 py-3 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-brand-border/30">
+                    <tr>
+                      <td class="px-4 py-3 font-semibold text-white">NHTSA Vehicle Registry</td>
+                      <td class="px-4 py-3">US Dept. of Transportation specifications & safety data</td>
+                      <td class="px-4 py-3 text-right"><span class="inline-flex items-center text-[10px] bg-brand-emerald/15 border border-brand-emerald/30 px-2 py-0.5 rounded text-brand-emerald font-bold"><i data-lucide="check" class="w-3 h-3 mr-1"></i>QUERIED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 font-semibold text-white">NMVTIS Title System</td>
+                      <td class="px-4 py-3">National Motor Vehicle Title Information System</td>
+                      <td class="px-4 py-3 text-right"><span class="inline-flex items-center text-[10px] bg-brand-emerald/15 border border-brand-emerald/30 px-2 py-0.5 rounded text-brand-emerald font-bold"><i data-lucide="check" class="w-3 h-3 mr-1"></i>QUERIED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 font-semibold text-white">NICB Database</td>
+                      <td class="px-4 py-3">National Insurance Crime Bureau (Theft & Total Loss)</td>
+                      <td class="px-4 py-3 text-right"><span class="inline-flex items-center text-[10px] bg-brand-emerald/15 border border-brand-emerald/30 px-2 py-0.5 rounded text-brand-emerald font-bold"><i data-lucide="check" class="w-3 h-3 mr-1"></i>QUERIED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 font-semibold text-white">State DMV Networks</td>
+                      <td class="px-4 py-3">Regional registration & mileage inspection logs</td>
+                      <td class="px-4 py-3 text-right"><span class="inline-flex items-center text-[10px] bg-brand-emerald/15 border border-brand-emerald/30 px-2 py-0.5 rounded text-brand-emerald font-bold"><i data-lucide="check" class="w-3 h-3 mr-1"></i>QUERIED</span></td>
+                    </tr>
+                    <tr>
+                      <td class="px-4 py-3 font-semibold text-white">Interpol Stolen Vehicles</td>
+                      <td class="px-4 py-3">International cross-border theft network</td>
+                      <td class="px-4 py-3 text-right"><span class="inline-flex items-center text-[10px] bg-brand-emerald/15 border border-brand-emerald/30 px-2 py-0.5 rounded text-brand-emerald font-bold"><i data-lucide="check" class="w-3 h-3 mr-1"></i>QUERIED</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Quick Stats KPIs Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div class="bg-brand-dark border border-brand-border/80 rounded-xl p-4 text-left">
+                <i data-lucide="users" class="w-6 h-6 text-brand-emerald mb-3"></i>
+                <div class="text-slate-400 text-[10px] uppercase tracking-wider font-bold mb-1">Previous Owners</div>
+                <div id="summary-owners" class="text-white font-black text-xl">1 Owner</div>
+                <div id="report-kpi-owners-status" class="text-brand-emerald text-xs mt-1 font-semibold">Excellent Status</div>
+              </div>
+              <div class="bg-brand-dark border border-brand-border/80 rounded-xl p-4 text-left">
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-1">Odometer Fraud</p>
+                <div class="text-lg font-black text-slate-100" id="summary-odometer-fraud">No</div>
+                <p class="text-[9px] text-brand-emerald font-semibold mt-1" id="summary-odometer-desc">Consistent Log</p>
+              </div>
+              <div class="bg-brand-dark border border-brand-border/80 rounded-xl p-4 text-left">
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-1">Accident Records</p>
+                <div class="text-lg font-black text-slate-100" id="summary-accidents">0 Reported</div>
+                <p class="text-[9px] text-brand-emerald font-semibold mt-1" id="summary-accidents-desc">Clean Frame</p>
+              </div>
+              <div class="bg-brand-dark border border-brand-border/80 rounded-xl p-4 text-left">
+                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider mb-1">Active Theft Flags</p>
+                <div class="text-lg font-black text-slate-100" id="summary-theft">No Records</div>
+                <p class="text-[9px] text-brand-emerald font-semibold mt-1" id="summary-theft-desc">Interpol Checked</p>
+              </div>
+            </div>
+
+            <!-- Summary Text Block -->
+            <div class="p-4 bg-brand-dark/45 border border-brand-border/80 rounded-xl flex items-start space-x-3 text-xs leading-relaxed text-slate-300">
+              <i data-lucide="info" class="w-5 h-5 text-brand-emerald flex-shrink-0 mt-0.5" id="summary-tip-icon"></i>
+              <span id="summary-verdict-text">This vehicle has a clean registry index. Odometer records match all annual state inspection logs. No salvage titles, structural collisions, or rental/commercial history checks have been flagged. Recommended for sale purchase.</span>
+            </div>
+          </div>
+
+          <!-- CHAPTER 2: HISTORY TIMELINE -->
+          <div id="section-timeline" class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl scroll-mt-24">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-emerald/10 text-brand-emerald flex items-center justify-center">
+                  <i data-lucide="milestone" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Chronological History Timeline</h3>
+                  <p class="text-[10px] text-slate-500">Documented events throughout the vehicle lifecycle</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- The Vertical Timeline -->
+            <div class="relative pl-6 sm:pl-8 border-l border-brand-border space-y-8 py-2 ml-4" id="timeline-container">
+              <!-- Timeline nodes loaded via JS -->
+            </div>
+          </div>
+
+          <!-- CHAPTER 3: MILEAGE VERIFICATION -->
+          <div id="section-mileage" class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl scroll-mt-24">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-emerald/10 text-brand-emerald flex items-center justify-center">
+                  <i data-lucide="gauge" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Odometer Fraud Check</h3>
+                  <p class="text-[10px] text-slate-500">Historical mileage logs plotted over time</p>
+                </div>
+              </div>
+              <span id="mileage-alert-badge" class="text-xs bg-emerald-500/10 text-brand-emerald border border-brand-emerald/20 px-2.5 py-0.5 rounded-full font-bold flex items-center space-x-1">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                <span>Fraud Detected: NO</span>
+              </span>
+            </div>
+
+            <!-- Fraud Alert banner if rollback occurs -->
+            <div id="mileage-warning-banner" class="hidden p-4 bg-brand-danger/10 border border-brand-danger/25 text-brand-danger rounded-xl flex items-start space-x-3">
+              <i data-lucide="alert-octagon" class="w-5 h-5 flex-shrink-0 mt-0.5 animate-bounce"></i>
+              <div class="text-xs">
+                <h4 class="font-extrabold">CRITICAL MILEAGE ROLLBACK DETECTED</h4>
+                <p class="text-slate-300 mt-1 leading-relaxed">Our databases indicate a drop in the odometer reading. Between inspections, the mileage record decreased from <span class="font-bold text-white" id="rollback-high">45,100 mi</span> to <span class="font-bold text-white" id="rollback-low">18,200 mi</span>. This is a clear indicator of tampering.</p>
+              </div>
+            </div>
+
+            <!-- Chart Container -->
+            <div class="bg-brand-dark/60 border border-brand-border/80 rounded-xl p-4 sm:p-6 shadow-inner relative h-72">
+              <canvas id="mileageChart"></canvas>
+            </div>
+
+            <!-- Raw Mileage Table -->
+            <div class="space-y-3">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Reported Readings Log</h4>
+              <div class="border border-brand-border/80 rounded-xl overflow-hidden bg-brand-dark/30">
+                <table class="w-full text-xs text-left border-collapse">
+                  <thead>
+                    <tr class="bg-brand-dark border-b border-brand-border text-slate-400 font-semibold">
+                      <th class="p-3">Log Date</th>
+                      <th class="p-3">Reading (mi)</th>
+                      <th class="p-3">Source Registry</th>
+                      <th class="p-3 text-right">Verification</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mileage-table-body" class="divide-y divide-brand-border/50 text-slate-300">
+                    <!-- Loaded dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- CHAPTER 4: ACCIDENTS & DAMAGES -->
+          <div id="section-damages" class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl scroll-mt-24">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-emerald/10 text-brand-emerald flex items-center justify-center">
+                  <i data-lucide="wrench" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Accidents & Physical Damages</h3>
+                  <p class="text-[10px] text-slate-500">Chassis collisions and insurance loss payouts</p>
+                </div>
+              </div>
+              <span id="damages-count-badge" class="text-xs bg-emerald-500/10 text-brand-emerald border border-brand-emerald/20 px-2.5 py-0.5 rounded-full font-bold">0 Incidents</span>
+            </div>
+
+            <!-- Damages split layout -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+              
+              <!-- Left Column: Interactive SVG Chassis Map -->
+              <div class="md:col-span-5 flex flex-col items-center justify-center bg-brand-dark/45 border border-brand-border/80 rounded-xl p-6 relative">
+                <div class="absolute top-2 right-2 text-[9px] text-slate-500 font-mono flex items-center space-x-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                  <span>Active Damage Glow</span>
+                </div>
+                
+                <!-- SVG top down chassis -->
+                <svg viewBox="0 0 200 450" class="w-full max-w-[190px] h-auto transition-transform duration-300 hover:scale-[1.02]">
+                  <!-- Wheels -->
+                  <rect x="15" y="60" width="20" height="40" rx="5" fill="#1e293b" />
+                  <rect x="165" y="60" width="20" height="40" rx="5" fill="#1e293b" />
+                  <rect x="15" y="320" width="20" height="45" rx="5" fill="#1e293b" />
+                  <rect x="165" y="320" width="20" height="45" rx="5" fill="#1e293b" />
+                  
+                  <!-- Side Mirrors -->
+                  <path d="M 30,120 C 15,120 15,135 28,135 Z" fill="#1e293b" />
+                  <path d="M 170,120 C 185,120 185,135 172,135 Z" fill="#1e293b" />
+
+                  <!-- Chassis Zones -->
+                  <!-- 1. Front Bumper -->
+                  <path id="chassis-front-bumper" d="M 40,30 C 60,15 140,15 160,30 C 170,38 170,48 170,48 L 30,48 C 30,48 30,38 40,30 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('front-bumper')" />
+
+                  <!-- 2. Hood / Engine Bay -->
+                  <path id="chassis-hood" d="M 30,52 L 170,52 C 170,52 165,115 160,130 L 40,130 C 35,115 30,52 30,52 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('hood')" />
+
+                  <!-- 3. Windshield -->
+                  <path id="chassis-windshield" d="M 42,134 L 158,134 L 150,170 L 50,170 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('windshield')" />
+
+                  <!-- 4. Roof (Cabin) -->
+                  <path id="chassis-roof" d="M 50,174 L 150,174 L 144,280 L 56,280 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('roof')" />
+
+                  <!-- 5. Left Front Fender -->
+                  <path id="chassis-left-front" d="M 28,52 L 28,190 C 28,190 44,190 44,130 C 44,70 30,52 28,52 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('left-front')" />
+
+                  <!-- 6. Right Front Fender -->
+                  <path id="chassis-right-front" d="M 172,52 L 172,190 C 172,190 156,190 156,130 C 156,70 170,52 172,52 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('right-front')" />
+
+                  <!-- 7. Left Rear Panel -->
+                  <path id="chassis-left-rear" d="M 28,194 L 28,370 L 48,370 C 48,370 48,280 48,194 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('left-rear')" />
+
+                  <!-- 8. Right Rear Panel -->
+                  <path id="chassis-right-rear" d="M 172,194 L 172,370 L 152,370 C 152,370 152,280 152,194 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('right-rear')" />
+
+                  <!-- 9. Rear Bumper -->
+                  <path id="chassis-rear-bumper" d="M 48,374 L 152,374 C 152,374 162,385 160,405 C 158,420 140,425 100,425 C 60,425 42,420 40,405 C 38,385 48,374 48,374 Z" 
+                        class="stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300" stroke-width="2" onclick="clickChassisZone('rear-bumper')" />
+                </svg>
+                <p class="text-[10px] text-slate-500 mt-4 text-center">Interactive Chassis. Click highlighted zones to inspect damages.</p>
+              </div>
+
+              <!-- Right Column: Damage Log Cards -->
+              <div class="md:col-span-7 space-y-4">
+                
+                <!-- Dynamic active inspector detail -->
+                <div id="damage-inspector-card" class="p-4 bg-brand-dark/95 border border-brand-border rounded-xl transition-all duration-200">
+                  <div class="flex items-center justify-between border-b border-brand-border/60 pb-2 mb-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center space-x-1.5">
+                      <i data-lucide="eye" class="w-3.5 h-3.5 text-brand-emerald"></i>
+                      <span>Collision Zone Inspector</span>
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-500" id="damage-inspector-zone">Zone: Front Bumper</span>
+                  </div>
+                  <div id="damage-inspector-content" class="text-xs text-slate-300 space-y-2">
+                    <p class="text-[11px] text-slate-500 italic">Select any highlighted panel on the left car map to view specific damage reports and insurance payout summaries.</p>
+                  </div>
+                </div>
+
+                <!-- Hardcoded list of reported records -->
+                <div id="damage-list-container" class="space-y-3 max-h-56 overflow-y-auto pr-1">
+                  <!-- Injected via JS -->
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- CHAPTER 5: SECURITY CHECKLIST -->
+          <div id="section-theft" class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl scroll-mt-24">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-emerald/10 text-brand-emerald flex items-center justify-center">
+                  <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Security & Integrity Checklists</h3>
+                  <p class="text-[10px] text-slate-500">Cross-reference verify against public safety logs</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stolen alert if stolen keyword is active -->
+            <div id="theft-warning-banner" class="hidden p-4 bg-brand-danger/10 border border-brand-danger/25 text-brand-danger rounded-xl flex items-start space-x-3">
+              <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0 mt-0.5 animate-pulse"></i>
+              <div class="text-xs">
+                <h4 class="font-extrabold text-white">CRITICAL SECURITY ALERT: ACTIVE THEFT RECORD</h4>
+                <p class="text-slate-300 mt-1 leading-relaxed">This vehicle is flagged in the Interpol Stolen Motor Vehicle Database. Police registry reported theft in Rome, Italy, in February 2024. Do not complete purchase or proceed without contacting local authorities.</p>
+              </div>
+            </div>
+
+            <!-- The Grid Checklist -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="security-checklist-grid">
+              <!-- Dynamically populated checklist via JS -->
+            </div>
+          </div>
+
+          <!-- CHAPTER 6: TECHNICAL SPECIFICATION SHEET -->
+          <div id="section-specs" class="bg-brand-card border border-brand-border rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl scroll-mt-24">
+            <div class="flex items-center justify-between pb-4 border-b border-brand-border/60">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded bg-brand-emerald/10 text-brand-emerald flex items-center justify-center">
+                  <i data-lucide="file-text" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-white">Technical Specifications Sheet</h3>
+                  <p class="text-[10px] text-slate-500">Original manufacture trim details</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Specs Grid table -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6 text-xs" id="specs-grid-container">
+              <!-- Spec items generated via JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="border-t border-brand-border/60 bg-brand-dark/95 py-8 mt-20 relative z-10 text-center space-y-4">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-7 h-7 rounded bg-brand-emerald/10 flex items-center justify-center">
+          <i data-lucide="shield-check" class="w-4 h-4 text-brand-emerald"></i>
+        </div>
+        <span class="text-sm font-bold text-slate-200">CarVerify Reports</span>
+      </div>
+      <p class="text-[11px] text-slate-500">
+        © 2026 CarVerify Ltd. This application displays simulated historical record outputs for demonstration purposes.
+      </p>
+      <div class="flex space-x-4 text-xs text-slate-400">
+        <a href="#" class="hover:text-white transition-colors" onclick="resetToHome()">New Search</a>
+        <span>·</span>
+        <a href="https://github.com" target="_blank" class="hover:text-white transition-colors">Documentation</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mock Database JavaScript Engine -->
+  <script type="text/javascript">
+    
+    // Core App State
+    let currentTab = 'vin';
+    let currentReportData = null;
+    let chartInstance = null;
+    let activeChassisZones = [];
+
+    // Initialize Lucide Icons on start
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      setupVINInputCounter();
+    });
+
+    // Character counter for VIN input
+    function setupVINInputCounter() {
+      const vinInput = document.getElementById('vin-input');
+      const vinCounter = document.getElementById('vin-counter');
+      
+      vinInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/[^A-Za-z0-9]/g, '');
+        e.target.value = val.toUpperCase();
+        vinCounter.textContent = `${val.length}/17`;
+        if (val.length === 17) {
+          vinCounter.className = "text-[10px] font-mono text-brand-emerald bg-brand-emerald/10 px-2 py-1 rounded border border-brand-emerald/20";
+        } else {
+          vinCounter.className = "text-[10px] font-mono text-slate-500 bg-brand-border px-2 py-1 rounded";
+        }
+      });
+    }
+
+    // Quick fill VIN template links from header
+    function showSampleVIN(keyword) {
+      resetToHome();
+      switchSearchTab('vin');
+      const vinInput = document.getElementById('vin-input');
+      vinInput.value = keyword.padEnd(17, 'X');
+      const vinCounter = document.getElementById('vin-counter');
+      vinCounter.textContent = '17/17';
+      vinCounter.className = "text-[10px] font-mono text-brand-emerald bg-brand-emerald/10 px-2 py-1 rounded border border-brand-emerald/20";
+    }
+
+    // Toggle between VIN and Plate tabs
+    function switchSearchTab(tab) {
+      currentTab = tab;
+      const vinBtn = document.getElementById('tab-vin');
+      const plateBtn = document.getElementById('tab-plate');
+      const vinGroup = document.getElementById('vin-input-group');
+      const plateGroup = document.getElementById('plate-input-group');
+      const errBanner = document.getElementById('search-error');
+
+      errBanner.classList.add('hidden');
+
+      if (tab === 'vin') {
+        vinBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-300 bg-brand-card text-brand-emerald shadow-md";
+        plateBtn.className = "flex-1 py-2 text-sm font-semibold text-slate-400 rounded-lg hover:text-white transition-all duration-300";
+        vinGroup.classList.remove('hidden');
+        plateGroup.classList.add('hidden');
+      } else {
+        plateBtn.className = "flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-300 bg-brand-card text-brand-emerald shadow-md";
+        vinBtn.className = "flex-1 py-2 text-sm font-semibold text-slate-400 rounded-lg hover:text-white transition-all duration-300";
+        plateGroup.classList.remove('hidden');
+        vinGroup.classList.add('hidden');
+      }
+    }
+
+    // Reset views to Homepage
+    function resetToHome() {
+      document.getElementById('report-section').classList.add('hidden');
+      document.getElementById('loading-section').classList.add('hidden');
+      document.getElementById('hero-section').classList.remove('hidden');
+      document.getElementById('dynamic-red-glow').classList.add('hidden');
+      
+      // Clear inputs
+      document.getElementById('vin-input').value = '';
+      document.getElementById('plate-input').value = '';
+      document.getElementById('vin-counter').textContent = '0/17';
+      document.getElementById('vin-counter').className = "text-[10px] font-mono text-slate-500 bg-brand-border px-2 py-1 rounded";
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+
+    // Search trigger
+    function handleSearch(event) {
+      event.preventDefault();
+      const errBanner = document.getElementById('search-error');
+      const errMsg = document.getElementById('error-message');
+      
+      let searchKey = "";
+      if (currentTab === 'vin') {
+        const val = document.getElementById('vin-input').value.trim();
+        if (val.length < 3) {
+          errMsg.textContent = "Please enter a VIN string of at least 3 characters.";
+          errBanner.classList.remove('hidden');
+          return;
+        }
+        searchKey = val.toUpperCase();
+      } else {
+        const val = document.getElementById('plate-input').value.trim();
+        if (val.length < 3) {
+          errMsg.textContent = "Please enter a valid license plate number.";
+          errBanner.classList.remove('hidden');
+          return;
+        }
+        searchKey = val.toUpperCase();
+      }
+
+      errBanner.classList.add('hidden');
+      startScanningProcess(searchKey);
+    }
+
+    // Interactive Loading Animation Sequence
+    function startScanningProcess(queryKey) {
+      // Hide Hero, Show Loader
+      document.getElementById('hero-section').classList.add('hidden');
+      document.getElementById('loading-section').classList.remove('hidden');
+      window.scrollTo(0, 0);
+
+      const progressBar = document.getElementById('scan-progress-bar');
+      const pctDisplay = document.getElementById('scan-percentage');
+      const taskDisplay = document.getElementById('scanner-current-task');
+      const terminal = document.getElementById('scan-terminal');
+      terminal.innerHTML = ""; // Clear logs
+
+      // Loading steps details
+      const steps = [
+        { progress: 15, task: "Connecting to national motor registers...", label: "Registry DB connected", id: 0 },
+        { progress: 38, task: "Cross-referencing Interpol & NCIC database...", label: "Theft checks verified", id: 1 },
+        { progress: 62, task: "Retrieving annual mileage inspection logs...", label: "Mileage logs loaded", id: 2 },
+        { progress: 84, task: "Compiling insurance accidents & claims history...", label: "Insurance logs compiled", id: 3 },
+        { progress: 95, task: "Scanning manufacturer spec sheets...", label: "Spec sheets loaded", id: 4 }
+      ];
+
+      // Terminal simulation logs
+      const logLines = [
+        "SYSTEM: Starting secure remote handshakes...",
+        "SYSTEM: Sending API query for querykey: " + queryKey,
+        "DMV_REGISTRY: Connection established on port 443.",
+        "DMV_REGISTRY: 4 historical matching registration events found.",
+        "POLICE_NCIC: Authenticating token with Interpol DB...",
+        "POLICE_NCIC: Secure response received. 0 match found in standard query.",
+        "INSPECTION_BOARD: Resolving periodic garage odometer audits...",
+        "INSPECTION_BOARD: Decrypted odometer data arrays: 5 readings verified.",
+        "INSURANCE_POOL: Accessing claims cluster #2...",
+        "INSURANCE_POOL: Incident logs parsed successfully.",
+        "FACTORY_PORTAL: Querying Zuffenhausen/Stuttgart production logs...",
+        "FACTORY_PORTAL: Paint code: M7Z, Engine code: DKTA matched.",
+        "SYSTEM: Bundling secure report checksum...",
+        "SYSTEM: Verification sequence complete. Loading dashboard."
+      ];
+
+      // Reset Step UI items to default states
+      for (let i = 0; i < 5; i++) {
+        const stepEl = document.getElementById(`step-${i}`);
+        stepEl.className = "flex items-center justify-between text-xs text-slate-500 font-medium transition-all duration-200";
+        stepEl.querySelector('.status-icon').innerHTML = '<i data-lucide="circle-dashed" class="w-4 h-4 text-slate-700"></i>';
+        stepEl.querySelector('.status-label').textContent = "PENDING";
+      }
+      lucide.createIcons();
+
+      let currentPercent = 0;
+      let logIndex = 0;
+
+      // Update terminal every 200ms
+      const termInterval = setInterval(() => {
+        if (logIndex < logLines.length) {
+          const line = document.createElement('div');
+          // Add coloring to alerts
+          if (logLines[logIndex].includes("WARNING")) {
+            line.className = "text-brand-amber font-semibold";
+          } else if (logLines[logIndex].includes("SYSTEM")) {
+            line.className = "text-brand-emerald font-bold";
+          } else {
+            line.className = "text-slate-400";
+          }
+          line.textContent = `> ${logLines[logIndex]}`;
+          terminal.appendChild(line);
+          terminal.scrollTop = terminal.scrollHeight;
+          logIndex++;
+        }
+      }, 240);
+
+      // Increment progress bar smoothly
+      const progressInterval = setInterval(() => {
+        currentPercent += 1;
+        pctDisplay.textContent = `${currentPercent}%`;
+        progressBar.style.width = `${currentPercent}%`;
+
+        // Check step transitions
+        steps.forEach(step => {
+          if (currentPercent >= step.progress) {
+            const stepEl = document.getElementById(`step-${step.id}`);
+            // Mark step complete
+            stepEl.className = "flex items-center justify-between text-xs text-white font-semibold transition-all duration-200";
+            stepEl.querySelector('.status-icon').innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 text-brand-emerald"></i>';
+            stepEl.querySelector('.status-label').className = "status-label font-mono text-[10px] text-brand-emerald font-bold";
+            stepEl.querySelector('.status-label').textContent = "COMPLETED";
+
+            taskDisplay.textContent = step.task;
+
+            // Start next step spinner if not last
+            if (step.id < 4 && currentPercent < steps[step.id + 1].progress) {
+              const nextEl = document.getElementById(`step-${step.id + 1}`);
+              nextEl.className = "flex items-center justify-between text-xs text-slate-300 font-semibold transition-all duration-200";
+              nextEl.querySelector('.status-icon').innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin text-brand-emerald"></i>';
+              nextEl.querySelector('.status-label').textContent = "SCANNING";
+            }
+          }
+        });
+
+        lucide.createIcons();
+
+        if (currentPercent >= 100) {
+          clearInterval(progressInterval);
+          clearInterval(termInterval);
+          setTimeout(() => {
+            fetchLiveNHTSAData(queryKey);
+          }, 300);
+        }
+      }, 35); // Takes roughly 3.5 seconds
+    }
+
+    // Fetch Live NHTSA Data
+    async function fetchLiveNHTSAData(queryKey) {
+      let vinCode = queryKey;
+      let vinHash = queryKey.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+      // Deterministic issues for real VINs so the app feels alive
+      let isRollback = queryKey.includes("ROLLBACK") || (vinCode.length > 10 && vinHash % 7 === 0);
+      let isAccident = queryKey.includes("ACCIDENT") || (vinCode.length > 10 && vinHash % 3 === 0 && vinHash % 7 !== 0);
+      let isStolen = queryKey.includes("STOLEN") || (vinCode.length > 10 && vinHash % 17 === 0);
+      let plateNum = "N/A";
+      
+      if (currentTab === 'plate') {
+        plateNum = queryKey;
+        // Mock Plate-to-VIN resolution, prioritizing Canadian common vehicles if no special flag
+        // Here is a real Canadian-market valid VIN for a 2019 Honda Civic (built in Alliston, ON)
+        vinCode = "2HGFC2F51KH"; // First 11 characters are enough for NHTSA decoder
+      } else {
+        vinCode = queryKey; // Do not pad with X, as it breaks the NHTSA decoder's checksum and WMI parsing
+      }
+
+      // Hide loading, show report
+      document.getElementById('loading-section').classList.add('hidden');
+      document.getElementById('report-section').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      resetChassisSVGStyles();
+
+      let make = "Unknown Make";
+      let model = "Unknown Model";
+      let year = 2020;
+      let bodyClass = "Sedan";
+      let driveType = "FWD";
+      let engine = "N/A";
+      let fuel = "Gasoline";
+      let plant = "N/A";
+      let manufacturerName = "N/A";
+
+      try {
+        // Only fetch if it looks like a real VIN (length >= 10)
+        if (vinCode.length >= 10) {
+          const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vinCode}?format=json`);
+          const data = await res.json();
+          if (data.Results && data.Results.length > 0) {
+            const r = data.Results[0];
+            make = r.Make || make;
+            model = r.Model || model;
+            year = parseInt(r.ModelYear) || year;
+            bodyClass = r.BodyClass || bodyClass;
+            driveType = r.DriveType || driveType;
+            engine = `${r.EngineCylinders || '?'} Cyl ${r.DisplacementL ? r.DisplacementL + 'L' : ''}`;
+            fuel = r.FuelTypePrimary || fuel;
+            plant = r.PlantCountry || plant;
+            manufacturerName = r.Manufacturer || manufacturerName;
+            
+            window.nhtsaRawData = [];
+            for (let key in r) {
+              if (r[key] && r[key] !== "Not Applicable" && r[key] !== "0" && key !== "ErrorCode" && key !== "ErrorText") {
+                window.nhtsaRawData.push({ label: key, val: r[key] });
+              }
+            }
+          }
+        } else {
+          // If test flag is present, force realistic details for the demo
+          if (isRollback) { make = "BMW"; model = "530i xDrive"; year = 2018; bodyClass = "Sedan"; }
+          else if (isAccident) { make = "Audi"; model = "Q7 Prestige"; year = 2020; bodyClass = "SUV"; }
+          else if (isStolen) { make = "Land Rover"; model = "Range Rover Sport"; year = 2022; bodyClass = "SUV"; }
+          else { make = "Honda"; model = "Civic"; year = 2019; bodyClass = "Sedan"; plant = "CANADA"; } // Fallback for pure plate search demo
+        }
+      } catch (err) {
+        console.error("Failed to fetch NHTSA data", err);
+      }
+      
+      let color = "Factory Original";
+      
+      // Fetch dynamic photo from Wikipedia based on Make and Model
+      let photoUrl = await fetchWikipediaCarImage(make, model);
+
+      // Calculate realistic market value based on depreciation
+      let age = new Date().getFullYear() - year;
+      if (age < 0) age = 0;
+      
+      let basePrice = 28000;
+      const premiumMakes = ["PORSCHE", "BMW", "AUDI", "TESLA", "MERCEDES", "LEXUS", "LAND ROVER", "JAGUAR", "MASERATI"];
+      if (premiumMakes.some(m => make.toUpperCase().includes(m))) {
+        basePrice = 65000;
+      }
+      
+      // Depreciate by roughly 12% per year
+      let depreciatedValue = basePrice * Math.pow(0.88, age);
+      if (depreciatedValue < 1500) depreciatedValue = 1500; // Floor price
+      
+      let minVal = Math.floor(depreciatedValue * 0.9);
+      let maxVal = Math.floor(depreciatedValue * 1.1);
+
+      // Setup Health Score
+      // Dynamic score for clean cars between 8.2 and 9.8
+      let score = 8.2 + ((vinHash % 17) / 10);
+      let scoreDesc = score >= 9.0 ? "Excellent" : "Good";
+      let scoreAlertMsg = "Clean title, low-risk rating. Ideal investment candidate.";
+      let scoreAlertClass = "text-brand-emerald bg-brand-emerald/10 border-brand-emerald/20";
+      let scoreAlertIcon = "shield-check";
+
+      if (isRollback) {
+        score = 5.2;
+        scoreDesc = "Warning Alert";
+        scoreAlertMsg = "Odometer discrepancy detected. Structural history is clean, but engine mileage is unverified.";
+        scoreAlertClass = "text-brand-amber bg-brand-amber/10 border-brand-amber/20";
+        scoreAlertIcon = "alert-triangle";
+        minVal = Math.floor(minVal * 0.6); // 40% value drop
+        maxVal = Math.floor(maxVal * 0.6);
+      } else if (isAccident) {
+        score = 6.8;
+        scoreDesc = "Moderate Risk";
+        scoreAlertMsg = "2 accidents reported. Moderate cosmetic chassis panel repairs done by authorized insurer.";
+        scoreAlertClass = "text-brand-amber bg-brand-amber/10 border-brand-amber/20";
+        scoreAlertIcon = "wrench";
+        minVal = Math.floor(minVal * 0.8); // 20% value drop
+        maxVal = Math.floor(maxVal * 0.8);
+      } else if (isStolen) {
+        score = 1.8;
+        scoreDesc = "CRITICAL ALERT";
+        scoreAlertMsg = "ACTIVE THEFT FLAG detected. Proceed with extreme caution and check local police registers.";
+        scoreAlertClass = "text-brand-danger bg-brand-danger/10 border-brand-danger/20";
+        scoreAlertIcon = "alert-octagon";
+        minVal = 0;
+        maxVal = 0; // Value is zero if stolen
+        document.getElementById('dynamic-red-glow').classList.remove('hidden'); // Show red glow theme accent
+      }
+
+      // Compile currentReportData object
+      currentReportData = {
+        make, model, year, color, photoUrl, vinCode, plateNum, score, scoreDesc, scoreAlertMsg, minVal, maxVal,
+        owners: isRollback ? 3 : (isAccident ? 2 : 1),
+        isRollback,
+        isAccident,
+        isStolen,
+        manufacturerName,
+        mileageLogs: generateMileageLogs(year, isRollback),
+        damages: generateDamages(isAccident),
+        timeline: generateTimeline(year, isRollback, isAccident, isStolen, make, model)
+      };
+
+      // Set Odometer Badge
+      let latestOdo = currentReportData.mileageLogs[currentReportData.mileageLogs.length - 1].reading;
+      document.getElementById('report-pill-odometer').innerHTML = `<i data-lucide="gauge" class="inline w-3 h-3 mr-1 mb-0.5"></i>${latestOdo.toLocaleString()} mi`;
+
+      // Calculate Previous Owners
+      let ownersCount = 1 + (vinHash % 4);
+      if (age > 10) ownersCount += 1 + (vinHash % 3);
+
+      // Populate DOM elements
+      document.getElementById('report-owners-count').textContent = ownersCount;
+      document.getElementById('report-id').textContent = `#${vinCode.substring(0, 3)}-${vinCode.substring(7, 10)}-${vinCode.substring(14, 17)}`;
+      document.getElementById('report-pill-year').textContent = year;
+      
+      let originStr = plant === "N/A" || !plant ? "INT" : plant;
+      document.getElementById('report-pill-country').textContent = `🌐 Origin: ${originStr}`;
+      
+      document.getElementById('report-car-title').textContent = `${make} ${model}`;
+      
+      // Setup Subtitle (Body | Engine | Drive)
+      let cleanEngine = engine.replace('Cyl ', 'Cyl | ').replace('?', 'Unknown');
+      document.getElementById('report-car-subtitle').textContent = `${bodyClass} | ${cleanEngine} | ${driveType}`;
+      
+      document.getElementById('report-car-vin').textContent = vinCode;
+      document.getElementById('report-car-img').src = photoUrl;
+      
+      // Set dynamic owners KPI
+      document.getElementById('report-kpi-owners').textContent = ownersCount === 1 ? "1 Owner" : `${ownersCount} Owners`;
+      document.getElementById('report-kpi-owners-status').textContent = ownersCount <= 2 ? "Excellent Status" : "Average Turnover";
+      document.getElementById('report-kpi-owners-status').className = ownersCount > 2 ? "text-brand-amber text-xs mt-1 font-semibold" : "text-brand-emerald text-xs mt-1 font-semibold";
+      document.getElementById('report-car-color').textContent = color;
+      
+      if (minVal > 0) {
+        document.getElementById('report-market-val').textContent = `$${minVal.toLocaleString()} - $${maxVal.toLocaleString()}`;
+      } else {
+        document.getElementById('report-market-val').textContent = "UNAVAILABLE";
+        document.getElementById('report-market-val').className = "text-xl font-extrabold text-brand-danger mb-1";
+      }
+
+      // Update Health Index Radial
+      document.getElementById('report-score-num').textContent = score.toFixed(1);
+      document.getElementById('report-score-desc').textContent = scoreDesc;
+      if (isStolen) {
+        document.getElementById('report-score-desc').className = "text-[10px] text-brand-danger font-bold tracking-wide uppercase mt-1";
+      } else if (isRollback || isAccident) {
+        document.getElementById('report-score-desc').className = "text-[10px] text-brand-amber font-bold tracking-wide uppercase mt-1";
+      } else {
+        document.getElementById('report-score-desc').className = "text-[10px] text-brand-emerald font-bold tracking-wide uppercase mt-1";
+      }
+
+      // Health alert banner at dashboard header
+      const alertDiv = document.getElementById('report-score-alert');
+      alertDiv.className = `flex items-center space-x-2 text-xs font-semibold p-3.5 rounded-xl border ${scoreAlertClass}`;
+      alertDiv.querySelector('i').setAttribute('data-lucide', scoreAlertIcon);
+      document.getElementById('report-score-alert-msg').textContent = scoreAlertMsg;
+
+      // Overview KPI summary card updates
+      document.getElementById('summary-owners').textContent = `${currentReportData.owners} Owner${currentReportData.owners > 1 ? 's' : ''}`;
+      
+      const odometerFraudEl = document.getElementById('summary-odometer-fraud');
+      const odometerDescEl = document.getElementById('summary-odometer-desc');
+      if (isRollback) {
+        odometerFraudEl.textContent = "FRAUD DETECTED!";
+        odometerFraudEl.className = "text-lg font-black text-brand-danger";
+        odometerDescEl.textContent = "Rollback flagged";
+        odometerDescEl.className = "text-[9px] text-brand-danger font-semibold mt-1";
+      } else {
+        odometerFraudEl.textContent = "Consistent";
+        odometerFraudEl.className = "text-lg font-black text-slate-100";
+        odometerDescEl.textContent = "No discrepancies";
+        odometerDescEl.className = "text-[9px] text-brand-emerald font-semibold mt-1";
+      }
+
+      const accidentEl = document.getElementById('summary-accidents');
+      const accidentDescEl = document.getElementById('summary-accidents-desc');
+      if (isAccident) {
+        accidentEl.textContent = "2 Incidents";
+        accidentEl.className = "text-lg font-black text-brand-amber";
+        accidentDescEl.textContent = "Repair payouts logged";
+        accidentDescEl.className = "text-[9px] text-brand-amber font-semibold mt-1";
+      } else {
+        accidentEl.textContent = "None Logged";
+        accidentEl.className = "text-lg font-black text-slate-100";
+        accidentDescEl.textContent = "Clean frame integrity";
+        accidentDescEl.className = "text-[9px] text-brand-emerald font-semibold mt-1";
+      }
+
+      const theftEl = document.getElementById('summary-theft');
+      const theftDescEl = document.getElementById('summary-theft-desc');
+      if (isStolen) {
+        theftEl.textContent = "STOLEN FLAG";
+        theftEl.className = "text-lg font-black text-brand-danger";
+        theftDescEl.textContent = "Interpol Active Watch";
+        theftDescEl.className = "text-[9px] text-brand-danger font-semibold mt-1";
+      } else {
+        theftEl.textContent = "Clean Check";
+        theftEl.className = "text-lg font-black text-slate-100";
+        theftDescEl.textContent = "No stolen flags";
+        theftDescEl.className = "text-[9px] text-brand-emerald font-semibold mt-1";
+      }
+
+      document.getElementById('summary-verdict-text').textContent = isStolen 
+        ? "CRITICAL SECURITY INCIDENT: This vehicle registry currently possesses an active theft indicator from Italian police databases. Proceeding with any vehicle trade is highly discouraged and holds criminal liability risk."
+        : (isRollback 
+           ? "REGISTRY DISCREPANCY: Odometer rollbacks detected during the 2022 transfer log. Odometer decreased by over 26,000 miles. Purchase at your own risk; secondary engine health checking is required."
+           : (isAccident 
+              ? "HISTORICAL INCIDENTS DETECTED: This chassis has been subject to minor-to-moderate physical insurance payout claims. Bumper and fender repairs were executed. Structure has passed state alignment inspections."
+              : "EXCELLENT RATING: This vehicle registry is completely clean. Safe mileage timeline, no insurance losses, single ownership history, and passed security checklists. Excellent condition."));
+
+      // Update Radial Gauge offset
+      const dashOffset = 440 - (440 * score) / 10;
+      const arc = document.getElementById('gauge-arc');
+      arc.style.strokeDashoffset = dashOffset;
+      if (isStolen) {
+        arc.setAttribute('stroke', '#ef4444');
+      } else if (isRollback || isAccident) {
+        arc.setAttribute('stroke', '#f59e0b');
+      } else {
+        arc.setAttribute('stroke', '#10b981');
+      }
+
+      // Populate Mileage Chapter
+      populateMileageSection(currentReportData.mileageLogs, isRollback);
+
+      // Populate Damages Chapter
+      populateDamagesSection(currentReportData.damages, isAccident);
+
+      // Populate Security Chapters
+      populateSecuritySection(isStolen, isRollback);
+
+      // Populate Timeline Chapters
+      populateTimelineSection(currentReportData.timeline);
+
+      // Populate Technical Specification chapters
+      populateSpecsSection(make, model, color, bodyClass, driveType, engine, fuel, plant, manufacturerName);
+      
+      // Populate Registration
+      populateRegistrationSection(vinCode, year);
+      
+      // Populate Marketplace Listings
+      populateMarketplaceSection(vinCode, year, make, model, logs);
+
+      // Reset and trigger nav scroll listening
+      highlightNav('section-overview');
+
+      // Reinitialize Lucide Icons
+      lucide.createIcons();
+    }
+
+    // Helper: Fetch dynamic car image from Wikipedia
+    async function fetchWikipediaCarImage(make, model) {
+      let defaultImage = "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80"; // Generic sleek car
+      
+      // Fallback for demo keywords to keep the premium specific images
+      if (make === "BMW" && model.includes("530")) return "https://images.unsplash.com/photo-1523983388277-336a66bf908b?auto=format&fit=crop&w=1200&q=80";
+      if (make === "Audi" && model.includes("Q7")) return "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1200&q=80";
+      if (make === "Land Rover") return "https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=1200&q=80";
+      
+      try {
+        let queryStr = make;
+        if (model && !model.includes("Unknown")) {
+          queryStr += " " + model;
+        }
+        
+        let query = encodeURIComponent(`${queryStr} car`);
+        let searchUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${query}&gsrlimit=1&prop=pageimages&format=json&pithumbsize=1200&origin=*`;
+        let res = await fetch(searchUrl);
+        let data = await res.json();
+        
+        // If not found, try a broader search without "car"
+        if (!data.query || !data.query.pages) {
+          query = encodeURIComponent(queryStr);
+          searchUrl = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${query}&gsrlimit=1&prop=pageimages&format=json&pithumbsize=1200&origin=*`;
+          res = await fetch(searchUrl);
+          data = await res.json();
+        }
+
+        if (data.query && data.query.pages) {
+          const pages = data.query.pages;
+          const pageId = Object.keys(pages)[0];
+          if (pages[pageId].thumbnail && pages[pageId].thumbnail.source) {
+            return pages[pageId].thumbnail.source;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch image from Wikipedia", e);
+      }
+      
+      // Final fallback: deterministic generic premium car image from Unsplash
+      const fallbacks = [
+        "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1503375836815-b77cd5c81f72?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1489824904114-8c1561161346?auto=format&fit=crop&w=1200&q=80"
+      ];
+      let hash = (make + model).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      return fallbacks[hash % fallbacks.length];
+    }
+
+    // Helper: Generate Mileage Logs
+    function generateMileageLogs(startYear, isRollback) {
+      let currentYear = new Date().getFullYear();
+      let logs = [];
+      let baseMileage = 15;
+      
+      let rollbackYear = isRollback ? startYear + Math.floor((currentYear - startYear) / 2) : -1;
+      if (rollbackYear < startYear + 1) rollbackYear = startYear + 1;
+      if (rollbackYear > currentYear) rollbackYear = currentYear;
+
+      for (let y = startYear; y <= currentYear; y++) {
+        let loggedVal = baseMileage;
+        
+        // standard mileage growth
+        if (y === startYear) {
+          baseMileage += Math.floor(Math.random() * 500) + 1000;
+        } else {
+          baseMileage += Math.floor(Math.random() * 4000) + 8000;
+        }
+
+        // Apply Rollback dip
+        if (isRollback && y === rollbackYear) {
+          baseMileage = Math.floor(baseMileage * 0.4); // roll back by 60%
+        }
+
+        logs.push({
+          date: `${y}-06-15`,
+          reading: baseMileage,
+          source: y === startYear ? "Manufacturer Handover" : (y % 2 === 0 ? "State Inspection Board" : "Authorized Service Garage"),
+          status: "Verified"
+        });
+      }
+
+      return logs;
+    }
+
+    // Helper: Generate Damages Mock Logs
+    function generateDamages(isAccident) {
+      if (!isAccident) return [];
+
+      return [
+        {
+          zone: "front-bumper",
+          severity: "Minor Damage",
+          severityColor: "text-brand-amber bg-brand-amber/10 border-brand-amber/20",
+          date: "2022-11-04",
+          description: "Collision with parking barrier. Front plastic bumper bumper skin and fog lights replaced. Structural integrity uncompromised.",
+          cost: 1850
+        },
+        {
+          zone: "right-front",
+          severity: "Moderate Damage",
+          severityColor: "text-brand-danger bg-brand-danger/10 border-brand-danger/20",
+          date: "2024-04-12",
+          description: "T-bone side impact at low speed. Passenger side front fender replaced, right front suspension arm aligned. Insurer payout completed.",
+          cost: 4800
+        }
+      ];
+    }
+
+    // Helper: Generate Timeline Logs
+    function generateTimeline(startYear, isRollback, isAccident, isStolen, make, model) {
+      let currentYear = new Date().getFullYear();
+      let timeline = [
+        {
+          date: `${startYear}-04-12`,
+          title: "Factory Assembly Released",
+          desc: `Manufactured in facility. Handover tests completed. Code status ok.`,
+          icon: "factory",
+          color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+        },
+        {
+          date: `${startYear}-06-15`,
+          title: "First Registration & Delivery",
+          desc: "Registered to first private owner. Delivered by official dealership.",
+          icon: "user",
+          color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+        }
+      ];
+
+      if (isRollback) {
+        let rollbackYear = startYear + Math.floor((currentYear - startYear) / 2);
+        if (rollbackYear < startYear + 1) rollbackYear = startYear + 1;
+        if (rollbackYear > currentYear) rollbackYear = currentYear;
+        
+        timeline.push(
+          {
+            date: `${rollbackYear - 1}-06-10`,
+            title: "Authorized Major Service",
+            desc: `Routine engine check and fluids replacement completed at ${make} Dealership.`,
+            icon: "settings",
+            color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+          },
+          {
+            date: `${rollbackYear}-06-15`,
+            title: "Odometer Rollback Discrepancy Flagged",
+            desc: "Critical drop detected: odometer registered a severe drop during inspection.",
+            icon: "alert-triangle",
+            color: "border-brand-danger text-brand-danger bg-brand-danger/10"
+          },
+          {
+            date: `${rollbackYear}-07-02`,
+            title: "Registration Title Transfer",
+            desc: "Title transferred to second owner. Vehicle registered under warning title status.",
+            icon: "file-signature",
+            color: "border-brand-amber text-brand-amber bg-brand-amber/10"
+          }
+        );
+      } else if (isAccident) {
+        timeline.push(
+          {
+            date: "2022-11-04",
+            title: "Collision & Claim Filed",
+            desc: "Accident logged by insurance company. Front bumper and grille damages declared. Claim value: $1,850.",
+            icon: "wrench",
+            color: "border-brand-amber text-brand-amber bg-brand-amber/10"
+          },
+          {
+            date: "2023-01-20",
+            title: "State Inspection Renewal",
+            desc: "Safety inspection completed. Front impact sensors verified.",
+            icon: "clipboard-check",
+            color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+          },
+          {
+            date: "2024-04-12",
+            title: "Major Collision Accident Logged",
+            desc: "Side impact collision reported. Right front side damages recorded. Vehicle body shop structural geometry inspection completed: PASSED.",
+            icon: "alert-octagon",
+            color: "border-brand-danger text-brand-danger bg-brand-danger/10"
+          }
+        );
+      } else if (isStolen) {
+        timeline.push(
+          {
+            date: "2023-08-14",
+            title: "Ownership Transfer",
+            desc: "Vehicle exported to Italy. Registered to second private owner.",
+            icon: "ship",
+            color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+          },
+          {
+            date: "2024-02-28",
+            title: "Police Registry Theft Flag",
+            desc: "Vehicle reported stolen in Rome, Italy. Active watch entered in international Police NCB.",
+            icon: "alert-octagon",
+            color: "border-brand-danger text-brand-danger bg-brand-danger/10"
+          }
+        );
+      } else {
+        // Normal clean path
+        timeline.push(
+          {
+            date: "2022-06-12",
+            title: "Periodic Inspection Pass",
+            desc: "Safety and emissions check pass. Recorded mileage matches growth trends.",
+            icon: "clipboard-check",
+            color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+          },
+          {
+            date: "2023-10-05",
+            title: "Tire and Brake Maintenance",
+            desc: "Performance tyres replaced. Front rotors serviced at official repair shop.",
+            icon: "settings",
+            color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+          },
+          {
+            date: "2024-06-18",
+            title: "Inspection Renewal Pass",
+            desc: "Passed emissions and computer diagnostic scan checks.",
+            icon: "shield-check",
+            color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+          }
+        );
+      }
+
+      // Add final compile item
+      timeline.push({
+        date: new Date().toISOString().split('T')[0],
+        title: "Report Registry Compiled",
+        desc: "Final digital signature compiled for online distribution.",
+        icon: "fingerprint",
+        color: "border-brand-emerald text-brand-emerald bg-brand-emerald/10"
+      });
+
+      return timeline;
+    }
+
+    // Populate Mileage section chart & table
+    function populateMileageSection(logs, isRollback) {
+      const warningBanner = document.getElementById('mileage-warning-banner');
+      const badge = document.getElementById('mileage-alert-badge');
+      const tableBody = document.getElementById('mileage-table-body');
+      
+      tableBody.innerHTML = "";
+
+      if (isRollback) {
+        warningBanner.classList.remove('hidden');
+        badge.className = "text-xs bg-red-500/10 text-brand-danger border border-brand-danger/25 px-2.5 py-0.5 rounded-full font-bold flex items-center space-x-1";
+        badge.innerHTML = '<i data-lucide="alert-octagon" class="w-3.5 h-3.5"></i><span>Odometer Tampered: YES</span>';
+        
+        // Set values in banner description
+        document.getElementById('rollback-high').textContent = "45,100 mi";
+        document.getElementById('rollback-low').textContent = "18,200 mi";
+      } else {
+        warningBanner.classList.add('hidden');
+        badge.className = "text-xs bg-emerald-500/10 text-brand-emerald border border-brand-emerald/20 px-2.5 py-0.5 rounded-full font-bold flex items-center space-x-1";
+        badge.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i><span>Odometer Fraud Detected: NO</span>';
+      }
+
+      // Build Table rows and highlight discrepancy if needed
+      logs.forEach((log, index) => {
+        const row = document.createElement('tr');
+        
+        // Highlight logic
+        let isHighlightedRow = false;
+        let rollbackYear = isRollback ? startYear + Math.floor((new Date().getFullYear() - startYear) / 2) : -1;
+        if (rollbackYear < startYear + 1) rollbackYear = startYear + 1;
+        if (rollbackYear > new Date().getFullYear()) rollbackYear = new Date().getFullYear();
+        
+        if (isRollback && log.date.includes(`${rollbackYear}`)) {
+          isHighlightedRow = true;
+        }
+
+        row.className = isHighlightedRow 
+          ? "bg-brand-danger/10 border-b border-brand-danger/20 text-brand-danger font-semibold" 
+          : "border-b border-brand-border/40 hover:bg-brand-dark/20 transition-all";
+
+        row.innerHTML = `
+          <td class="p-3 font-mono">${log.date}</td>
+          <td class="p-3 font-bold">${log.reading.toLocaleString()}</td>
+          <td class="p-3 text-slate-400">${log.source}</td>
+          <td class="p-3 text-right">
+            ${isHighlightedRow 
+              ? '<span class="inline-flex items-center text-[10px] bg-brand-danger/20 border border-brand-danger/40 px-2 py-0.5 rounded text-brand-danger font-black uppercase"><i data-lucide="alert-octagon" class="w-3 h-3 mr-1"></i>ROLLBACK</span>'
+              : '<span class="inline-flex items-center text-[10px] bg-brand-emerald/15 border border-brand-emerald/30 px-2 py-0.5 rounded text-brand-emerald font-semibold uppercase"><i data-lucide="check" class="w-3 h-3 mr-1"></i>CONSISTENT</span>'
+            }
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // Update banner with dynamic rollback numbers if they exist
+      if (isRollback && logs.length > 2) {
+        let maxVal = Math.max(...logs.map(l => l.reading));
+        let minValAfterMax = Math.min(...logs.filter(l => l.reading < maxVal && logs.indexOf(l) > logs.findIndex(x => x.reading === maxVal)).map(l => l.reading));
+        if (minValAfterMax === Infinity) minValAfterMax = Math.floor(maxVal * 0.4);
+        document.getElementById('rollback-high').textContent = maxVal.toLocaleString() + " mi";
+        document.getElementById('rollback-low').textContent = minValAfterMax.toLocaleString() + " mi";
+      }
+
+      // Render Chart.js
+      renderMileageChart(logs, isRollback);
+    }
+
+    // Chart.js render engine
+    function renderMileageChart(logs, isRollback) {
+      const ctx = document.getElementById('mileageChart').getContext('2d');
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      const labels = logs.map(l => l.date.split('-')[0]); // Extract Years
+      const data = logs.map(l => l.reading);
+
+      // Line color config
+      const strokeColor = isRollback ? '#ef4444' : '#10b981';
+      const glowGradient = ctx.createLinearGradient(0, 0, 0, 250);
+      glowGradient.addColorStop(0, isRollback ? 'rgba(239, 68, 68, 0.25)' : 'rgba(16, 185, 129, 0.25)');
+      glowGradient.addColorStop(1, 'rgba(9, 13, 22, 0)');
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Odometer (mi)',
+            data: data,
+            borderColor: strokeColor,
+            borderWidth: 3,
+            backgroundColor: glowGradient,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: strokeColor,
+            pointBorderColor: '#111827',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            pointHoverBackgroundColor: strokeColor,
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: '#151c2c',
+              titleColor: '#ffffff',
+              titleFont: { size: 12, weight: 'bold', family: 'Inter' },
+              bodyColor: '#e2e8f0',
+              bodyFont: { size: 12, family: 'Inter' },
+              borderColor: '#1f2937',
+              borderWidth: 1,
+              padding: 10,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  return `Recorded Mileage: ${context.parsed.y.toLocaleString()} miles`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(31, 41, 55, 0.4)'
+              },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Inter', size: 10 }
+              }
+            },
+            y: {
+              grid: {
+                color: 'rgba(31, 41, 55, 0.4)'
+              },
+              ticks: {
+                color: '#94a3b8',
+                font: { family: 'Inter', size: 10 },
+                callback: function(value) {
+                  return value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Populate damages text lists and sync with SVG Chassis
+    function populateDamagesSection(damages, isAccident) {
+      const badge = document.getElementById('damages-count-badge');
+      const listContainer = document.getElementById('damage-list-container');
+      const inspectorContent = document.getElementById('damage-inspector-content');
+      const inspectorZone = document.getElementById('damage-inspector-zone');
+      
+      listContainer.innerHTML = "";
+
+      // Default inspector prompt
+      inspectorZone.textContent = "Zone: General Frame";
+      inspectorContent.innerHTML = `
+        <p class="text-[11px] text-slate-500 italic">Select any highlighted panel on the left car map to view specific damage reports and insurance payout summaries.</p>
+      `;
+
+      if (!isAccident) {
+        badge.className = "text-xs bg-emerald-500/10 text-brand-emerald border border-brand-emerald/20 px-2.5 py-0.5 rounded-full font-bold";
+        badge.textContent = "0 Accidents";
+        listContainer.innerHTML = `
+          <div class="p-6 bg-brand-dark/45 border border-brand-border/60 rounded-xl text-center">
+            <i data-lucide="check-circle" class="w-8 h-8 text-brand-emerald mx-auto mb-2 opacity-50"></i>
+            <h4 class="text-xs font-bold text-slate-300 uppercase">No Accidents Reported</h4>
+            <p class="text-[10px] text-slate-500 mt-1 max-w-xs mx-auto">This chassis matches original factory dimensional checks. No insurance loss claim registries exist.</p>
+          </div>
+        `;
+        return;
+      }
+
+      badge.className = "text-xs bg-red-500/10 text-brand-danger border border-brand-danger/25 px-2.5 py-0.5 rounded-full font-bold";
+      badge.textContent = `${damages.length} Incidents`;
+
+      // Build incident records
+      damages.forEach((dmg, index) => {
+        const zoneId = dmg.zone === 'front-bumper' ? 'chassis-front-bumper' : 'chassis-right-front';
+        
+        // Highlight SVG path
+        const path = document.getElementById(zoneId);
+        if (path) {
+          path.setAttribute('class', 'stroke-brand-danger fill-brand-danger/25 hover:fill-brand-danger/40 cursor-pointer transition-all duration-300 animate-pulse-glow');
+          path.style.animation = 'pulseGlow 2s infinite ease-in-out';
+        }
+
+        const card = document.createElement('div');
+        card.id = `damage-card-${dmg.zone}`;
+        card.className = "p-3.5 bg-brand-dark/45 hover:bg-brand-dark/85 border border-brand-border rounded-xl cursor-pointer transition-all flex items-start space-x-3";
+        card.onclick = () => highlightDamageIncident(dmg);
+
+        card.innerHTML = `
+          <div class="p-2 rounded bg-brand-danger/10 text-brand-danger flex-shrink-0">
+            <i data-lucide="wrench" class="w-4 h-4"></i>
+          </div>
+          <div class="space-y-1 text-left flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-slate-200 uppercase">${dmg.zone.replace('-', ' ')} collision</span>
+              <span class="text-[10px] font-mono text-slate-500">${dmg.date}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 line-clamp-2">${dmg.description}</p>
+            <div class="flex items-center justify-between pt-1">
+              <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${dmg.severityColor}">${dmg.severity}</span>
+              <span class="text-xs text-brand-danger font-extrabold">Payout: $${dmg.cost.toLocaleString()}</span>
+            </div>
+          </div>
+        `;
+        listContainer.appendChild(card);
+      });
+    }
+
+    // Highlight a specific accident incident from the list or SVG
+    function highlightDamageIncident(dmg) {
+      const inspectorContent = document.getElementById('damage-inspector-content');
+      const inspectorZone = document.getElementById('damage-inspector-zone');
+      const card = document.getElementById(`damage-card-${dmg.zone}`);
+
+      // Flash highlight class on card
+      if (card) {
+        card.classList.add('border-brand-emerald');
+        setTimeout(() => card.classList.remove('border-brand-emerald'), 1200);
+      }
+
+      inspectorZone.textContent = `Zone: ${dmg.zone.toUpperCase().replace('-', ' ')}`;
+      inspectorContent.innerHTML = `
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${dmg.severityColor}">${dmg.severity}</span>
+            <span class="text-xs font-black text-brand-danger">Est. Repairs: $${dmg.cost.toLocaleString()}</span>
+          </div>
+          <p class="text-slate-300 text-xs leading-relaxed font-light bg-brand-dark/80 p-2.5 rounded border border-brand-border">${dmg.description}</p>
+          <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-500 font-mono">
+            <div>INCIDENT DATE: ${dmg.date}</div>
+            <div>RECORD SOURCE: INSURER POOL</div>
+            <div>STATUS: CLOSED WORK</div>
+            <div>ALIGNED: YES</div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // SVG zone click connector
+    function clickChassisZone(zone) {
+      if (!currentReportData || !currentReportData.isAccident) {
+        showGenericChassisZoneAlert(zone);
+        return;
+      }
+      
+      // Match zone click to records
+      let matchedDmg = currentReportData.damages.find(d => d.zone === zone);
+      if (matchedDmg) {
+        highlightDamageIncident(matchedDmg);
+      } else {
+        showGenericChassisZoneAlert(zone);
+      }
+    }
+
+    function showGenericChassisZoneAlert(zone) {
+      const inspectorContent = document.getElementById('damage-inspector-content');
+      const inspectorZone = document.getElementById('damage-inspector-zone');
+      
+      inspectorZone.textContent = `Zone: ${zone.toUpperCase().replace('-', ' ')}`;
+      inspectorContent.innerHTML = `
+        <div class="p-3 bg-brand-dark/50 border border-brand-border/60 rounded-lg text-center space-y-1.5">
+          <i data-lucide="check" class="w-5 h-5 text-brand-emerald mx-auto"></i>
+          <h5 class="text-xs font-bold text-slate-200">No Incidents Logged</h5>
+          <p class="text-[10px] text-slate-500 leading-normal">This panel matches original manufacturing specifications. No replacement history, structural damage, or repaint records exist in our database pool.</p>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // Reset chassis SVG styles
+    function resetChassisSVGStyles() {
+      const zones = ['front-bumper', 'hood', 'windshield', 'roof', 'left-front', 'right-front', 'left-rear', 'right-rear', 'rear-bumper'];
+      zones.forEach(z => {
+        const el = document.getElementById(`chassis-${z}`);
+        if (el) {
+          el.setAttribute('class', 'stroke-slate-700 fill-slate-800/40 hover:fill-slate-700/60 cursor-pointer transition-all duration-300');
+          el.style.animation = 'none';
+        }
+      });
+    }
+
+    // Populate Security Check checklist
+    function populateSecuritySection(isStolen, isRollback) {
+      const warningBanner = document.getElementById('theft-warning-banner');
+      const grid = document.getElementById('security-checklist-grid');
+      
+      grid.innerHTML = "";
+
+      if (isStolen) {
+        warningBanner.classList.remove('hidden');
+      } else {
+        warningBanner.classList.add('hidden');
+      }
+
+      // Checklist items
+      const checks = [
+        { title: "Interpol Stolen Vehicles Log", status: isStolen ? "FAIL" : "PASS", desc: isStolen ? "Flagged stolen in Rome, Italy." : "No records match this chassis number." },
+        { title: "National Police Databases", status: isStolen ? "FAIL" : "PASS", desc: isStolen ? "Stolen status active watch." : "Passed clean registry check." },
+        { title: "Salvage & Scrap Title Registry", status: "PASS", desc: "No scrap yard records or insurance structural write-offs exist." },
+        { title: "Taxi / Rental Registry Check", status: "PASS", desc: "No taxi medallion logs, rental fleet leases, or shuttle uses reported." },
+        { title: "Lien & Outstanding Finance Log", status: "PASS", desc: "No active commercial leases or unpaid bank liens attached to VIN." },
+        { title: "Airbag Deployment Payouts", status: "PASS", desc: "No records of airbag deployments or total loss claims recorded." }
+      ];
+
+      checks.forEach(c => {
+        const item = document.createElement('div');
+        item.className = c.status === "FAIL"
+          ? "p-4.5 bg-brand-danger/5 border border-brand-danger/20 rounded-xl flex items-start space-x-3 text-left"
+          : "p-4.5 bg-brand-dark/45 border border-brand-border rounded-xl flex items-start space-x-3 text-left hover:bg-brand-dark/75 transition-all";
+
+        item.innerHTML = `
+          <div class="p-1.5 rounded-lg flex-shrink-0 ${c.status === "FAIL" ? 'bg-brand-danger/10 text-brand-danger' : 'bg-brand-emerald/10 text-brand-emerald'}">
+            <i data-lucide="${c.status === 'FAIL' ? 'alert-octagon' : 'shield-check'}" class="w-4 h-4"></i>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between gap-4">
+              <h4 class="text-xs font-bold text-slate-200 leading-tight">${c.title}</h4>
+              <span class="text-[10px] font-black uppercase ${c.status === 'FAIL' ? 'text-brand-danger' : 'text-brand-emerald'}">${c.status === 'FAIL' ? 'WARNING' : 'PASSED'}</span>
+            </div>
+            <p class="text-[10px] text-slate-500 leading-normal">${c.desc}</p>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    // Populate Timeline Section
+    function populateTimelineSection(timeline) {
+      const container = document.getElementById('timeline-container');
+      container.innerHTML = "";
+
+      timeline.forEach((node, index) => {
+        const card = document.createElement('div');
+        card.className = "relative flex flex-col sm:flex-row sm:items-start gap-3 text-left";
+
+        card.innerHTML = `
+          <!-- Bullet Point -->
+          <div class="absolute -left-[35px] top-1 sm:-left-[43px] w-5 h-5 rounded-full border-2 bg-brand-card flex items-center justify-center ${node.color}">
+            <i data-lucide="${node.icon}" class="w-2.5 h-2.5"></i>
+          </div>
+          
+          <div class="min-w-[100px]">
+            <time class="text-[10px] font-mono text-slate-500 font-bold block">${node.date}</time>
+          </div>
+          <div class="bg-brand-dark/50 border border-brand-border/60 hover:border-brand-border hover:bg-brand-dark/90 transition-all rounded-xl p-4 flex-1 space-y-1">
+            <h4 class="text-xs font-bold text-white leading-tight">${node.title}</h4>
+            <p class="text-[11px] text-slate-400 leading-relaxed font-light">${node.desc}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Populate Historical Marketplace Listings
+    function populateMarketplaceSection(vinCode, year, make, model, logs) {
+      const container = document.getElementById('marketplace-grid-container');
+      if (!container) return;
+      container.innerHTML = "";
+
+      let vinHash = vinCode.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      let currentYear = new Date().getFullYear();
+      let age = currentYear - year;
+      if (age < 0) age = 0;
+
+      let numListings = 1 + (vinHash % 3);
+      if (age < 2) numListings = 0; // Too new
+
+      if (numListings === 0) {
+        container.innerHTML = '<div class="col-span-full bg-brand-dark/50 border border-brand-border/40 rounded-xl p-6 text-center text-slate-400">No historical marketplace listings found for this vehicle.</div>';
+        return;
+      }
+
+      const sources = ["AutoTrader.com", "Cars.com", "CarGurus", "Craigslist", "Facebook Marketplace", "eBay Motors"];
+      
+      for (let i = 0; i < numListings; i++) {
+        let listYear = currentYear - (vinHash % (age || 1)) - i;
+        if (listYear < year) listYear = year + 1;
+        
+        let odoEstimate = "N/A";
+        let matchingLog = logs.find(l => l.date.includes(listYear.toString()));
+        if (matchingLog) odoEstimate = matchingLog.reading.toLocaleString() + " mi";
+        
+        let priceEst = 25000 * Math.pow(0.88, (listYear - year));
+        if (make === "PORSCHE" || make === "BMW") priceEst = 65000 * Math.pow(0.88, (listYear - year));
+        priceEst = Math.floor(priceEst / 100) * 100 + 99; // like 12499
+
+        let source = sources[(vinHash + i * 3) % sources.length];
+        
+        let div = document.createElement('div');
+        div.className = "bg-brand-dark/50 border border-brand-border/40 rounded-xl p-4 flex flex-col";
+        div.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <span class="text-[10px] font-bold text-white bg-blue-600/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded uppercase">${source}</span>
+              <p class="text-[10px] text-slate-500 mt-1 uppercase font-semibold">Archived: ${listYear}-0${(vinHash % 8) + 1}-14</p>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-black text-white">$${priceEst.toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="text-slate-300 text-sm font-medium mb-1">${listYear} ${make} ${model}</div>
+          <div class="text-slate-400 text-xs flex justify-between border-t border-brand-border/30 pt-2 mt-2">
+            <span>Reported Mileage:</span>
+            <span class="font-mono text-white">${odoEstimate}</span>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    // Populate Registration Details
+    function populateRegistrationSection(vinCode, year) {
+      const container = document.getElementById('registration-grid-container');
+      if (!container) return;
+
+      let vinHash = vinCode.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      
+      // Deterministic dates
+      let currentYear = new Date().getFullYear();
+      let age = currentYear - year;
+      if (age < 0) age = 0;
+
+      let ownersCount = 1 + (vinHash % 4);
+      if (age > 10) ownersCount += 1 + (vinHash % 3);
+
+      let purchaseYear = year + (vinHash % 3);
+      if (purchaseYear > currentYear) purchaseYear = currentYear;
+      let purchaseMonth = String((vinHash % 12) + 1).padStart(2, '0');
+      let purchaseDay = String((vinHash % 28) + 1).padStart(2, '0');
+
+      let regYear = currentYear - (vinHash % 3);
+      let regMonth = String(((vinHash + 5) % 12) + 1).padStart(2, '0');
+      let regDay = String(((vinHash + 10) % 28) + 1).padStart(2, '0');
+
+      let stats = [
+        { label: "First Purchase Date", val: `${purchaseYear}-${purchaseMonth}-${purchaseDay}` },
+        { label: "Last Registration", val: `${regYear}-${regMonth}-${regDay}` },
+        { label: "Registration Status", val: vinHash % 7 === 0 ? "Expired" : "Active / Valid" },
+        { label: "Last Inspection", val: `${regYear}-${String(((vinHash + 2) % 12) + 1).padStart(2, '0')}-15` },
+        { label: "Use Type", val: vinHash % 9 === 0 ? "Commercial / Fleet" : "Personal / Private" }
+      ];
+
+      // Reset container but keep the static owners count if needed or append dynamically
+      container.innerHTML = `
+        <div class="bg-brand-dark/50 border border-brand-border/40 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+          <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Previous Owners</span>
+          <span id="report-owners-count" class="text-2xl font-bold text-white">${ownersCount}</span>
+        </div>
+      `;
+      stats.forEach(stat => {
+        let div = document.createElement('div');
+        div.className = "bg-brand-dark/50 border border-brand-border/40 rounded-xl p-4 flex flex-col items-center justify-center text-center";
+        div.innerHTML = `
+          <span class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">${stat.label}</span>
+          <span class="text-sm font-bold text-white">${stat.val}</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Populate Spec Grid Details
+    function populateSpecsSection(make, model, color, bodyClass, driveType, engine, fuel, plant, manufacturerName) {
+      const container = document.getElementById('specs-grid-container');
+      const rawContainer = document.getElementById('raw-data-container');
+      if (rawContainer) {
+        rawContainer.innerHTML = "";
+        if (window.nhtsaRawData && window.nhtsaRawData.length > 0) {
+          window.nhtsaRawData.forEach(item => {
+            let div = document.createElement('div');
+            div.className = "flex justify-between items-center py-1.5 border-b border-slate-700/50 last:border-0";
+            div.innerHTML = `<span class="text-slate-400 font-medium">${item.label}</span><span class="text-white text-right max-w-[50%] truncate font-mono" title="${item.val}">${item.val}</span>`;
+            rawContainer.appendChild(div);
+          });
+        } else {
+          rawContainer.innerHTML = '<div class="col-span-full text-center text-slate-500 py-4">No hidden datapoints available for this query.</div>';
+        }
+      }
+      
+      let specs = [
+        { label: "Make Brand", val: make },
+        { label: "Model Range", val: model },
+        { label: "Manufacturer Entity", val: manufacturerName },
+        { label: "Assembly Facility", val: plant },
+        { label: "Engine Layout", val: engine },
+        { label: "Drive Configuration", val: driveType },
+        { label: "Fuel Registry Type", val: fuel },
+        { label: "Chassis Body Type", val: bodyClass },
+        { label: "Manufacture Color", val: color }
+      ];
+
+      container.innerHTML = "";
+
+      specs.forEach(s => {
+        const item = document.createElement('div');
+        item.className = "flex items-center justify-between py-2 border-b border-brand-border/40 hover:bg-brand-dark/20 px-2 rounded transition-all";
+        item.innerHTML = `
+          <span class="text-slate-400 font-medium">${s.label}</span>
+          <span class="text-white font-semibold font-mono text-[11px]">${s.val}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Highlight sidebar active tabs on click
+    function highlightNav(sectionId) {
+      const menuIds = ['overview', 'timeline', 'mileage', 'damages', 'theft', 'specs'];
+      menuIds.forEach(id => {
+        const el = document.getElementById(`nav-section-${id}`);
+        if (el) {
+          el.className = "text-slate-400 hover:text-white flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all";
+        }
+      });
+
+      const activeLink = document.getElementById(`nav-section-${sectionId.replace('section-', '')}`);
+      if (activeLink) {
+        activeLink.className = "nav-active flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs font-semibold border-l-2 border-transparent transition-all";
+      }
+    }
+
+    // Copy VIN Clipboard helper
+    function copyVIN() {
+      const vinText = document.getElementById('report-car-vin').textContent;
+      navigator.clipboard.writeText(vinText).then(() => {
+        const icon = document.getElementById('copy-icon');
+        icon.setAttribute('data-lucide', 'check');
+        lucide.createIcons();
+        
+        setTimeout(() => {
+          icon.setAttribute('data-lucide', 'copy');
+          lucide.createIcons();
+        }, 2000);
+      });
+    }
+
+    // Scroll Spy for Navigation Active highlighting
+    window.addEventListener('scroll', () => {
+      const sections = ['section-overview', 'section-timeline', 'section-mileage', 'section-damages', 'section-theft', 'section-specs'];
+      let currentSection = sections[0];
+
+      sections.forEach(secId => {
+        const el = document.getElementById(secId);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 140) {
+            currentSection = secId;
+          }
+        }
+      });
+
+      highlightNav(currentSection);
+    });
+
+  </script>
+</body>
+</html>
